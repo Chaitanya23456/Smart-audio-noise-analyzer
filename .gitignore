@@ -1,0 +1,51 @@
+# Node.js / Frontend dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Backend audio uploads & temp files
+backend/uploads/*.wav
+backend/uploads/*.webm
+backend/uploads/*.mp3
+backend/uploads/*.ogg
+backend/uploads/*.flac
+backend/uploads/*_orig*
+backend/uploads/*_record*
+!backend/uploads/.gitkeep
+
+# Environment variables
+.env
+.env.local
+
+# IDEs & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
