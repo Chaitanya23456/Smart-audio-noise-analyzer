@@ -329,9 +329,6 @@ const AudioRecorder = ({ onRecordSuccess }) => {
                   style={{ width: `${Math.max(5, liveLevel)}%` }}
                 />
               </div>
-              <span className="text-[10px] font-mono text-slate-400 w-8 text-right">
-                {liveLevel}%
-              </span>
             </div>
           )}
         </div>
@@ -345,13 +342,6 @@ const AudioRecorder = ({ onRecordSuccess }) => {
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               <span>Recording Preview</span>
             </span>
-            {recordedPeak !== null && (
-              <span className="text-[11px] font-mono text-slate-400">
-                Peak: <strong className={recordedPeak < 0.005 ? 'text-rose-400' : 'text-emerald-400'}>
-                  {(recordedPeak * 100).toFixed(1)}%
-                </strong>
-              </span>
-            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
