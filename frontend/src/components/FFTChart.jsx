@@ -14,8 +14,8 @@ import { HelpCircle, Zap } from 'lucide-react';
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#0b1220]/95 backdrop-blur-md border border-slate-700/80 p-2.5 rounded-lg shadow-xl text-xs space-y-1 font-mono">
-        <p className="text-cyan-400 font-semibold">Frequency: {Number(label).toFixed(1)} Hz</p>
+      <div className="bg-[#0c1220]/95 backdrop-blur-md border border-[#1e3050] p-2.5 rounded-lg shadow-xl text-xs space-y-1 font-mono">
+        <p className="text-violet-400 font-semibold">Frequency: {Number(label).toFixed(1)} Hz</p>
         {payload.map((entry, index) => (
           <p key={index} className="flex items-center space-x-2" style={{ color: entry.color }}>
             <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: entry.color }}></span>
@@ -36,7 +36,7 @@ const FFTChart = ({
   height = 280,
   title = 'Spectrum Analyzer: Magnitude |X(f)|',
 }) => {
-  const [zoomRange, setZoomRange] = useState('full'); // 'full', 'voice' (0-4kHz), 'audio' (0-10kHz)
+  const [zoomRange, setZoomRange] = useState('full');
   const [showTheory, setShowTheory] = useState(false);
 
   const chartData = useMemo(() => {
@@ -67,7 +67,7 @@ const FFTChart = ({
   if (!chartData.length) {
     return (
       <div
-        className="rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-center p-6 text-slate-500 text-xs font-mono"
+        className="rounded-xl bg-[#111a2e] border border-[#1e3050] flex items-center justify-center p-6 text-slate-500 text-xs font-mono"
         style={{ height }}
       >
         Waiting for spectral FFT calculation...
@@ -76,14 +76,14 @@ const FFTChart = ({
   }
 
   return (
-    <div className="rounded-xl bg-[#0e1626] border border-slate-800 p-4 shadow-lg space-y-2.5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-800/60">
+    <div className="rounded-xl bg-[#111a2e] border border-[#1e3050] p-4 shadow-lg space-y-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#1e3050]">
         <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span className="w-2 h-2 rounded-full bg-violet-400"></span>
           <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wide">{title}</h3>
           <button
             onClick={() => setShowTheory(!showTheory)}
-            className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center space-x-1 font-medium ml-1"
+            className="text-[11px] text-violet-400 hover:text-violet-300 flex items-center space-x-1 font-medium ml-1"
             title="Inspect DFT vs FFT complexity theory"
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -94,11 +94,11 @@ const FFTChart = ({
         {/* Range selectors */}
         <div className="flex items-center space-x-2">
           <span className="text-[10px] uppercase font-mono text-slate-500">Span:</span>
-          <div className="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[11px] font-mono">
+          <div className="inline-flex rounded-lg bg-[#0c1220] p-0.5 border border-[#1e3050] text-[10px] font-mono">
             <button
               onClick={() => setZoomRange('voice')}
               className={`px-2 py-0.5 rounded transition-all ${
-                zoomRange === 'voice' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+                zoomRange === 'voice' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               0-4k
@@ -106,7 +106,7 @@ const FFTChart = ({
             <button
               onClick={() => setZoomRange('audio')}
               className={`px-2 py-0.5 rounded transition-all ${
-                zoomRange === 'audio' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+                zoomRange === 'audio' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               0-10k
@@ -114,7 +114,7 @@ const FFTChart = ({
             <button
               onClick={() => setZoomRange('full')}
               className={`px-2 py-0.5 rounded transition-all ${
-                zoomRange === 'full' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+                zoomRange === 'full' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Full
@@ -123,35 +123,33 @@ const FFTChart = ({
         </div>
       </div>
 
-      {/* Theory dropdown card */}
       {showTheory && educationalDSP && (
-        <div className="p-3 rounded-lg bg-slate-950/90 border border-cyan-900/40 text-xs text-slate-300 space-y-1.5 font-mono text-[11px]">
-          <div className="flex items-center space-x-1.5 text-cyan-400 font-semibold">
+        <div className="p-3 rounded-lg bg-[#0c1220] border border-violet-500/20 text-xs text-slate-300 space-y-1.5 font-mono text-[11px]">
+          <div className="flex items-center space-x-1.5 text-violet-400 font-semibold">
             <Zap className="w-3.5 h-3.5" />
             <span>DFT Mathematical Definition & Cooley-Tukey FFT Complexity</span>
           </div>
           <p className="text-slate-400 leading-relaxed font-sans text-xs">
-            Direct DFT evaluates <span className="font-mono text-cyan-300">X[k] = ∑ x[n] · e^(-j 2π kn / N)</span> with <strong className="text-slate-200">O(N²)</strong> complex operations ({educationalDSP.dft_theoretical_ops?.toLocaleString()} ops).
+            Direct DFT evaluates <span className="font-mono text-violet-300">X[k] = ∑ x[n] · e^(-j 2π kn / N)</span> with <strong className="text-slate-200">O(N²)</strong> complex operations ({educationalDSP.dft_theoretical_ops?.toLocaleString()} ops).
           </p>
           <p className="text-slate-400 leading-relaxed font-sans text-xs">
-            The Cooley-Tukey algorithm computes the exact same DFT using butterfly symmetry in <strong className="text-slate-200">O(N log₂ N)</strong> operations ({educationalDSP.fft_theoretical_ops?.toLocaleString()} ops), giving <span className="text-emerald-400 font-semibold">{educationalDSP.theoretical_speedup}</span> speedup.
+            Cooley-Tukey computes the exact same DFT using butterfly symmetry in <strong className="text-slate-200">O(N log₂ N)</strong> operations ({educationalDSP.fft_theoretical_ops?.toLocaleString()} ops), giving <span className="text-emerald-400 font-semibold">{educationalDSP.theoretical_speedup}</span> speedup.
           </p>
         </div>
       )}
 
-      {/* Main Chart */}
       <div style={{ width: '100%', height }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 15, left: -15, bottom: 2 }}>
-            <CartesianGrid strokeDasharray="2 2" stroke="#1e293b" />
+            <CartesianGrid strokeDasharray="2 2" stroke="#1a2744" />
             <XAxis
               dataKey="freq"
-              stroke="#64748b"
+              stroke="#475569"
               tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }}
               tickFormatter={(v) => `${Number(v).toFixed(0)} Hz`}
             />
             <YAxis
-              stroke="#64748b"
+              stroke="#475569"
               domain={[-90, 5]}
               tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }}
               tickFormatter={(v) => `${Number(v).toFixed(0)} dB`}
@@ -165,7 +163,7 @@ const FFTChart = ({
               type="monotone"
               dataKey="original"
               name="Input Spectrum |X(f)|"
-              stroke="#06b6d4" // cyan
+              stroke="#a78bfa" // violet
               dot={false}
               strokeWidth={1.5}
               isAnimationActive={false}
@@ -175,7 +173,7 @@ const FFTChart = ({
                 type="monotone"
                 dataKey="filtered"
                 name="Filtered Spectrum |Y(f)|"
-                stroke="#f43f5e" // rose/magenta
+                stroke="#34d399" // emerald
                 dot={false}
                 strokeWidth={1.5}
                 isAnimationActive={false}

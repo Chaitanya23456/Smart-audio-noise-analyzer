@@ -62,10 +62,10 @@ const AudioUploader = ({ onUploadSuccess }) => {
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`border border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
+        className={`w-full border border-dashed rounded-xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
           dragActive
-            ? 'border-cyan-400 bg-cyan-950/20 scale-[0.99]'
-            : 'border-slate-800 bg-[#0a0f1d]/60 hover:border-slate-700 hover:bg-[#0a0f1d]'
+            ? 'border-violet-500 bg-violet-500/10 scale-[0.995]'
+            : 'border-[#1e3050] bg-[#0c1220]/70 hover:border-violet-500/40 hover:bg-[#0c1220]'
         }`}
       >
         <input
@@ -76,8 +76,8 @@ const AudioUploader = ({ onUploadSuccess }) => {
           className="hidden"
         />
 
-        <div className="w-11 h-11 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center mb-3">
-          <UploadCloud className="w-5 h-5 stroke-[2.2]" />
+        <div className="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20 flex items-center justify-center mb-3">
+          <UploadCloud className="w-6 h-6 stroke-[2.2]" />
         </div>
 
         <p className="text-xs font-bold text-slate-200 tracking-wide">
@@ -88,29 +88,29 @@ const AudioUploader = ({ onUploadSuccess }) => {
         </p>
 
         <div className="mt-3 flex items-center space-x-2">
-          <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-400">
+          <span className="px-2.5 py-0.5 rounded-md bg-[#111a2e] border border-[#1e3050] text-[10px] font-mono text-slate-400">
             WAV • 16/24-bit
           </span>
-          <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-400">
+          <span className="px-2.5 py-0.5 rounded-md bg-[#111a2e] border border-[#1e3050] text-[10px] font-mono text-slate-400">
             Max 25 MB
           </span>
         </div>
       </div>
 
       {localError && (
-        <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800 text-rose-300 text-xs flex items-center space-x-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-xs flex items-center space-x-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
           <span>{localError}</span>
         </div>
       )}
 
       {audioId && filename && !localError && (
-        <div className="p-2.5 rounded-lg bg-[#0e1626] border border-slate-800 text-xs flex items-center justify-between text-slate-300">
+        <div className="p-3 rounded-xl bg-[#0c1220] border border-[#1e3050] text-xs flex items-center justify-between text-slate-300">
           <div className="flex items-center space-x-2 truncate">
-            <FileAudio className="w-4 h-4 text-cyan-400 shrink-0" />
+            <FileAudio className="w-4 h-4 text-violet-400 shrink-0" />
             <span className="truncate font-semibold">{filename}</span>
           </div>
-          <span className="flex items-center space-x-1 text-emerald-400 font-medium shrink-0 ml-2 text-[11px]">
+          <span className="flex items-center space-x-1.5 text-emerald-400 font-medium shrink-0 ml-2 text-[11px]">
             <Check className="w-3.5 h-3.5" />
             <span>Ready for Processing</span>
           </span>

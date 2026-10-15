@@ -13,7 +13,7 @@ function App() {
   return (
     <BrowserRouter>
       <AudioProvider>
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <div className="min-h-screen bg-[#0c1220] text-slate-100 flex flex-col font-sans">
           {/* Top Navigation */}
           <Navbar />
 
@@ -22,8 +22,8 @@ function App() {
             <Sidebar />
 
             {/* Main Application Content Area */}
-            <main className="flex-1 overflow-y-auto p-6 bg-slate-950/60">
-              <div className="max-w-7xl mx-auto">
+            <main className="flex-1 overflow-y-auto p-6 bg-[#0c1220]">
+              <div className="w-full max-w-[1550px] mx-auto">
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/analysis" element={<AudioAnalysis />} />

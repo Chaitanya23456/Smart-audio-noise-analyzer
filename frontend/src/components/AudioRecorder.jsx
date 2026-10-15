@@ -4,7 +4,6 @@ import { useAudio } from '../hooks/useAudio';
 
 // ---------------------------------------------------------------------------
 // Encode a Float32Array of PCM samples as a standard 16-bit mono WAV blob.
-// This allows SoundFile on the backend to read it without ffmpeg or pydub.
 // ---------------------------------------------------------------------------
 function encodeWAV(samples, sampleRate) {
   const numSamples = samples.length;
@@ -17,26 +16,22 @@ function encodeWAV(samples, sampleRate) {
     }
   };
 
-  // RIFF chunk descriptor
   writeString(0, 'RIFF');
   view.setUint32(4, 36 + numSamples * 2, true);
   writeString(8, 'WAVE');
 
-  // fmt sub-chunk
   writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);       // sub-chunk size
-  view.setUint16(20, 1, true);        // PCM = 1
-  view.setUint16(22, 1, true);        // mono
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true); // byte rate
-  view.setUint16(32, 2, true);        // block align
-  view.setUint16(34, 16, true);       // bits per sample
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
 
-  // data sub-chunk
   writeString(36, 'data');
   view.setUint32(40, numSamples * 2, true);
 
-  // Write 16-bit signed PCM samples
   let offset = 44;
   for (let i = 0; i < numSamples; i++) {
     const s = Math.max(-1, Math.min(1, samples[i]));
@@ -47,11 +42,6 @@ function encodeWAV(samples, sampleRate) {
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
-// ---------------------------------------------------------------------------
-// AudioRecorder component
-// Uses Web AudioContext + ScriptProcessor to capture raw float32 PCM, then
-// encodes to WAV client-side — no ffmpeg/pydub needed on the backend.
-// ---------------------------------------------------------------------------
 const AudioRecorder = ({ onRecordSuccess }) => {
   const { handleRecord, loading } = useAudio();
 
@@ -112,12 +102,10 @@ const AudioRecorder = ({ onRecordSuccess }) => {
       const source = ctx.createMediaStreamSource(stream);
       sourceRef.current = source;
 
-      // ScriptProcessor: 4096 frame buffer, 1 input channel, 1 output channel
       const processor = ctx.createScriptProcessor(4096, 1, 1);
       processorRef.current = processor;
 
       processor.onaudioprocess = (e) => {
-        // Copy float32 PCM into accumulator array
         const channelData = e.inputBuffer.getChannelData(0);
         pcmSamplesRef.current.push(new Float32Array(channelData));
       };
@@ -142,7 +130,6 @@ const AudioRecorder = ({ onRecordSuccess }) => {
       timerRef.current = null;
     }
 
-    // Merge all accumulated PCM chunks into a single Float32Array
     const totalLength = pcmSamplesRef.current.reduce((n, c) => n + c.length, 0);
     const merged = new Float32Array(totalLength);
     let offset = 0;
@@ -177,11 +164,11 @@ const AudioRecorder = ({ onRecordSuccess }) => {
   };
 
   return (
-    <div className="p-4 rounded-xl bg-[#0a0f1d]/60 border border-slate-800 space-y-4">
+    <div className="p-4 rounded-xl bg-[#0c1220]/70 border border-[#1e3050] space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wide">Microphone Capture</h4>
-          <p className="text-[11px] text-slate-400">Captures uncompressed 16-bit PCM WAV (44.1 kHz) via AudioContext</p>
+          <p className="text-[11px] text-slate-500">Captures uncompressed 16-bit PCM WAV (44.1 kHz)</p>
         </div>
         {isRecording && (
           <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono">
@@ -191,13 +178,12 @@ const AudioRecorder = ({ onRecordSuccess }) => {
         )}
       </div>
 
-      {/* Recording button area */}
-      <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-[#080c14] border border-slate-800/80 space-y-2">
+      <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
         {!isRecording ? (
           <button
             onClick={startRecording}
             disabled={loading}
-            className="w-13 h-13 rounded-full bg-slate-900 border-2 border-rose-500/60 hover:border-rose-400 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-50 shadow-sm"
+            className="w-12 h-12 rounded-full bg-[#0c1220] border-2 border-rose-500/60 hover:border-rose-400 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 flex items-center justify-center transition-all duration-150 active:scale-95 disabled:opacity-50 shadow-sm"
             title="Start Microphone Recording"
           >
             <Mic className="w-5 h-5 stroke-[2.2]" />
@@ -205,7 +191,7 @@ const AudioRecorder = ({ onRecordSuccess }) => {
         ) : (
           <button
             onClick={stopRecording}
-            className="w-13 h-13 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-950/60 transition-transform active:scale-95 animate-pulse"
+            className="w-12 h-12 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-950/60 transition-transform active:scale-95 animate-pulse"
             title="Stop Recording"
           >
             <Square className="w-5 h-5 fill-current" />
@@ -220,14 +206,13 @@ const AudioRecorder = ({ onRecordSuccess }) => {
         </span>
       </div>
 
-      {/* Preview and submit */}
       {previewUrl && !isRecording && (
-        <div className="p-3 rounded-lg bg-[#0e1626] border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="p-3 rounded-lg bg-[#111a2e] border border-[#1e3050] flex flex-col sm:flex-row items-center justify-between gap-3">
           <audio src={previewUrl} controls className="h-8 w-full sm:w-60" />
           <button
             onClick={submitRecording}
             disabled={loading}
-            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-md shadow-cyan-950/50 transition-all disabled:opacity-50"
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-950/50 transition-all disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{loading ? 'Processing...' : 'Analyze Recording'}</span>
@@ -236,8 +221,8 @@ const AudioRecorder = ({ onRecordSuccess }) => {
       )}
 
       {errorMsg && (
-        <div className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-800 text-rose-300 text-xs flex items-center space-x-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+        <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-xs flex items-center space-x-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
           <span>{errorMsg}</span>
         </div>
       )}

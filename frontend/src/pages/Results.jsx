@@ -8,7 +8,6 @@ import {
   Zap,
   ShieldCheck,
   AlertTriangle,
-  RotateCcw,
 } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 import AudioPlayer from '../components/AudioPlayer';
@@ -35,7 +34,6 @@ const Results = () => {
 
   const navigate = useNavigate();
 
-  // Fetch recommendation if not yet loaded
   useEffect(() => {
     if (audioId && !recommendation && !loading) {
       handleRecommend();
@@ -50,7 +48,7 @@ const Results = () => {
 
   if (!audioId) {
     return (
-      <div className="max-w-xl mx-auto p-10 text-center rounded-2xl bg-[#0e1626] border border-slate-800 space-y-4">
+      <div className="max-w-xl mx-auto p-10 text-center rounded-2xl bg-[#111a2e] border border-[#1e3050] space-y-4">
         <Award className="w-12 h-12 text-slate-600 mx-auto" />
         <h3 className="text-lg font-bold text-slate-200">No Audio Signal Loaded</h3>
         <p className="text-xs text-slate-400">
@@ -58,7 +56,7 @@ const Results = () => {
         </p>
         <button
           onClick={() => navigate('/')}
-          className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-950/40"
+          className="px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-500/20"
         >
           Go to Dashboard
         </button>
@@ -69,20 +67,20 @@ const Results = () => {
   const hasGroundTruth = filterMetrics?.has_ground_truth || isCalibratedDemo;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1e3050]">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-xl font-black uppercase text-slate-100 tracking-tight">
+            <h1 className="text-xl font-extrabold text-white tracking-tight">
               Results & Recommendation
             </h1>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20">
               {filename}
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Compare time-domain waveforms, frequency spectra, and objective performance metrics before and after filtering.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Compare time-domain waveforms, frequency spectra, and objective performance metrics.
           </p>
         </div>
 
@@ -90,10 +88,10 @@ const Results = () => {
           <a
             href={api.getAudioDownloadUrl(filteredAudioId)}
             download
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/50 transition-all shrink-0 active:scale-95"
+            className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/50 transition-all shrink-0 active:scale-[0.97]"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Export Filtered WAV</span>
+            <span>Export WAV</span>
           </a>
         )}
       </div>
@@ -108,15 +106,15 @@ const Results = () => {
 
       {/* Recommended Filter Card */}
       {recommendation?.recommendation_status === 'success' && (
-        <div className="p-5 rounded-2xl bg-[#0e1626] border border-cyan-500/30 shadow-xl space-y-3">
+        <div className="p-5 rounded-2xl bg-[#111a2e] border border-violet-500/30 shadow-xl space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/25 flex items-center justify-center text-violet-400">
                 <Award className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400">
-                  Recommended Filter Candidate
+                <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-violet-400">
+                  Recommended Filter
                 </span>
                 <h3 className="text-base font-bold text-white">
                   {recommendation.recommended_filter_name}
@@ -127,25 +125,25 @@ const Results = () => {
             <button
               onClick={applyRecommended}
               disabled={loading}
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-950/50 transition-all disabled:opacity-50 shrink-0 active:scale-95"
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/20 transition-all disabled:opacity-50 shrink-0 active:scale-[0.97]"
             >
-              <Zap className="w-3.5 h-3.5 text-yellow-300" />
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
               <span>{loading ? 'Applying...' : 'Apply Recommended Filter'}</span>
             </button>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed bg-[#080c14] p-3.5 rounded-xl border border-slate-800">
-            <strong className="text-cyan-400 font-semibold">Engineering Suitability Rationale: </strong>
+          <p className="text-xs text-slate-300 leading-relaxed bg-[#0c1220] p-3.5 rounded-xl border border-[#1e3050]">
+            <strong className="text-violet-400 font-semibold">Suitability Rationale: </strong>
             {recommendation.reason}
           </p>
         </div>
       )}
 
-      {/* Selected Filter & Performance Summary (Compact Table) */}
-      <div className="rounded-xl bg-[#0e1626] border border-slate-800 shadow-xl overflow-hidden">
-        <div className="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-            Measured Performance Metrics
+      {/* Selected Filter & Performance Summary Table */}
+      <div className="rounded-xl bg-[#111a2e] border border-[#1e3050] shadow-xl overflow-hidden">
+        <div className="p-4 bg-[#0c1220] border-b border-[#1e3050] flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+            Performance Metrics
           </h3>
           <span className="text-xs font-mono text-slate-400">
             {hasGroundTruth ? (
@@ -164,17 +162,17 @@ const Results = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-[#080c14] text-slate-500 border-b border-slate-800/80 uppercase text-[10px] tracking-wider">
+            <thead className="bg-[#0a1018] text-slate-500 border-b border-[#1e3050] uppercase text-[10px] tracking-wider">
               <tr>
                 <th className="py-2.5 px-4 font-sans">Applied Filter</th>
                 <th className="py-2.5 px-4">Order</th>
-                <th className="py-2.5 px-4">Processing Latency</th>
-                <th className="py-2.5 px-4">Noise Reduction</th>
+                <th className="py-2.5 px-4">Latency</th>
+                <th className="py-2.5 px-4">Noise Attenuation</th>
                 <th className="py-2.5 px-4">SNR Gain (ΔSNR)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              <tr className="hover:bg-slate-800/30">
+            <tbody className="divide-y divide-[#1e3050]">
+              <tr className="hover:bg-[#162038]/50">
                 <td className="py-3 px-4 font-sans font-semibold text-slate-200">
                   {filterMetrics?.filter_family ? `${filterMetrics.filter_family} Filter` : 'Selected Filter'}
                 </td>
@@ -189,10 +187,10 @@ const Results = () => {
                 </td>
                 <td className="py-3 px-4">
                   {hasGroundTruth && filterMetrics?.delta_snr_db != null ? (
-                    <span className="text-cyan-400 font-bold">+{filterMetrics.delta_snr_db} dB</span>
+                    <span className="text-violet-400 font-bold">+{filterMetrics.delta_snr_db} dB</span>
                   ) : (
                     <span className="text-slate-500 italic text-[11px] font-sans">
-                      N/A (True SNR requires clean reference)
+                      N/A (Requires known clean reference)
                     </span>
                   )}
                 </td>
@@ -201,8 +199,7 @@ const Results = () => {
           </table>
         </div>
 
-        {/* Scientific Explanation on SNR */}
-        <div className="p-3.5 bg-[#080c14] border-t border-slate-800 text-[11px] text-slate-400">
+        <div className="p-3.5 bg-[#0a1018] border-t border-[#1e3050] text-[11px] text-slate-400">
           <strong className="text-slate-300">DSP Engineering Note: </strong>
           {hasGroundTruth ? (
             <span>
@@ -216,56 +213,56 @@ const Results = () => {
         </div>
       </div>
 
-      {/* Overlaid Waveforms & Overlaid Spectra Comparison */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Waveforms & Spectra Comparison */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <WaveformChart
           originalWaveform={timeStats.waveform}
           filteredWaveform={filteredTimeStats?.waveform}
-          title="Waveform Comparison: Input x[n] vs Filtered y[n]"
+          title="Waveform: Input x[n] vs Filtered y[n]"
           height={280}
         />
         <FFTChart
           originalSpectrum={fftStats.spectrum}
           filteredSpectrum={filteredFftStats?.spectrum}
-          title="Spectrum Comparison: Input |X(f)| vs Filtered |Y(f)|"
+          title="Spectrum: Input |X(f)| vs Filtered |Y(f)|"
           height={280}
         />
       </div>
 
-      {/* Candidate Filters Compact Comparison Table */}
+      {/* Evaluated Filter Benchmarks */}
       {recommendation?.all_evaluated_candidates && recommendation.all_evaluated_candidates.length > 0 && (
-        <div className="rounded-xl bg-[#0e1626] border border-slate-800 shadow-xl overflow-hidden">
-          <div className="p-4 bg-slate-950/80 border-b border-slate-800">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Evaluated Filter Benchmarks
+        <div className="rounded-xl bg-[#111a2e] border border-[#1e3050] shadow-xl overflow-hidden">
+          <div className="p-4 bg-[#0c1220] border-b border-[#1e3050]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Evaluated Filter Topologies
             </h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Comparison across candidate topologies evaluated for this signal profile.
+            <p className="text-[10px] text-slate-500 mt-0.5">
+              Comparison across candidate topologies evaluated for this signal.
             </p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-[#080c14] text-slate-500 border-b border-slate-800/80 uppercase text-[10px] tracking-wider">
+              <thead className="bg-[#0a1018] text-slate-500 border-b border-[#1e3050] uppercase text-[10px] tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-4 font-sans">Filter Topology</th>
+                  <th className="py-2.5 px-4 font-sans">Topology</th>
                   <th className="py-2.5 px-4">Family</th>
                   <th className="py-2.5 px-4">Order</th>
                   <th className="py-2.5 px-4">Attenuation</th>
                   <th className="py-2.5 px-4">Latency</th>
-                  <th className="py-2.5 px-4 font-sans">Phase Linearity</th>
+                  <th className="py-2.5 px-4 font-sans">Phase Response</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-[#1e3050]">
                 {recommendation.all_evaluated_candidates.map((cand, idx) => {
                   const isTop = cand.filter_name === recommendation.recommended_filter_name;
                   return (
-                    <tr key={idx} className={isTop ? 'bg-cyan-950/20' : 'hover:bg-slate-800/30'}>
+                    <tr key={idx} className={isTop ? 'bg-violet-500/10' : 'hover:bg-[#162038]/50'}>
                       <td className="py-2.5 px-4 font-sans font-semibold text-slate-200 flex items-center space-x-2">
-                        {isTop && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block" />}
+                        {isTop && <span className="w-1.5 h-1.5 rounded-full bg-violet-400 inline-block" />}
                         <span>{cand.filter_name}</span>
                       </td>
-                      <td className="py-2.5 px-4 text-cyan-400">{cand.family}</td>
+                      <td className="py-2.5 px-4 text-violet-400">{cand.family}</td>
                       <td className="py-2.5 px-4 text-slate-300">{cand.order}</td>
                       <td className="py-2.5 px-4 text-emerald-400 font-bold">+{cand.noise_reduction_db} dB</td>
                       <td className="py-2.5 px-4 text-amber-400">{cand.processing_time_ms} ms</td>

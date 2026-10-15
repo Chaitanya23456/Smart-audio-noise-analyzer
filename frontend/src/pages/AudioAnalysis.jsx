@@ -26,7 +26,7 @@ const AudioAnalysis = () => {
 
   if (!audioId || !timeStats) {
     return (
-      <div className="max-w-xl mx-auto p-10 text-center rounded-2xl bg-[#0e1626] border border-slate-800 space-y-4">
+      <div className="max-w-xl mx-auto p-10 text-center rounded-2xl bg-[#111a2e] border border-[#1e3050] space-y-4">
         <AudioWaveform className="w-12 h-12 text-slate-600 mx-auto" />
         <h3 className="text-lg font-bold text-slate-200">No Audio Signal Loaded</h3>
         <p className="text-xs text-slate-400">
@@ -34,7 +34,7 @@ const AudioAnalysis = () => {
         </p>
         <button
           onClick={() => navigate('/')}
-          className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-950/40"
+          className="px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-500/20"
         >
           Return to Dashboard
         </button>
@@ -42,87 +42,83 @@ const AudioAnalysis = () => {
     );
   }
 
-  // Get only the top 5 dominant peaks
   const topFivePeaks = (fftStats?.dominant_frequencies || []).slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1e3050]">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-xl font-black uppercase text-slate-100 tracking-tight">
+            <h1 className="text-xl font-extrabold text-white tracking-tight">
               Signal Analysis
             </h1>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20">
               {filename}
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Time-domain waveform and frequency-domain spectrum analysis using the Discrete Fourier Transform (DFT).
+          <p className="text-xs text-slate-500 mt-0.5">
+            Time-domain waveform and frequency-domain spectrum via DFT (computed using FFT).
           </p>
         </div>
 
         <button
           onClick={() => navigate('/filters')}
-          className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-600 hover:bg-cyan-500 text-white shadow-md shadow-cyan-950/50 transition-all shrink-0 active:scale-95"
+          className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/20 transition-all shrink-0 active:scale-[0.97]"
         >
-          <span>Configure Digital Filters</span>
+          <span>Configure Filters</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Audio Playback Bar */}
+      {/* Audio Player */}
       <AudioPlayer
         originalAudioId={audioId}
-        originalTitle={filename ? `Input Audio: ${filename}` : 'Input Audio'}
+        originalTitle={filename ? `Input: ${filename}` : 'Input Audio'}
       />
 
-      {/* Exactly Two Main Graphs: Waveform & Spectrum */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Graph 1: Time-domain Waveform */}
+      {/* Two Main Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <WaveformChart
           originalWaveform={timeStats.waveform}
-          title="Oscilloscope: Time-Domain Waveform x[n]"
+          title="Time-Domain Waveform x[n]"
           height={280}
         />
-
-        {/* Graph 2: Frequency-domain Spectrum */}
         <FFTChart
           originalSpectrum={fftStats?.spectrum}
           dominantFrequencies={topFivePeaks}
           educationalDSP={fftStats?.educational_dsp}
-          title="Spectrum Analyzer: Frequency Spectrum |X(f)| (dBFS)"
+          title="Frequency Spectrum |X(f)| (dB)"
           height={280}
         />
       </div>
 
-      {/* Clear DSP Concepts Explanation: DFT vs FFT */}
-      <div className="p-4 rounded-xl bg-[#0e1626] border border-slate-800 space-y-2">
-        <div className="flex items-center space-x-2 text-cyan-400 text-xs font-bold uppercase tracking-wider">
+      {/* DFT vs FFT Explanation */}
+      <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
+        <div className="flex items-center space-x-2 text-violet-400 text-xs font-bold uppercase tracking-wider">
           <Info className="w-4 h-4 shrink-0" />
-          <span>Transformation Fundamentals: DFT vs FFT</span>
+          <span>DFT vs FFT</span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          The <strong>Discrete Fourier Transform (DFT)</strong> is the foundational mathematical transformation converting discrete time-domain samples <span className="font-mono text-cyan-300 font-semibold">x[n]</span> into frequency harmonics <span className="font-mono text-cyan-300 font-semibold">X[k]</span>.
+          The <strong>Discrete Fourier Transform (DFT)</strong> converts time-domain samples <span className="font-mono text-violet-300">x[n]</span> into frequency components <span className="font-mono text-violet-300">X[k]</span>.
         </p>
         <p className="text-xs text-slate-400 leading-relaxed">
-          The <strong>Fast Fourier Transform (FFT)</strong> is not a different transform; it is an efficient, mathematically exact algorithm (Cooley-Tukey) that computes the DFT in <span className="font-mono text-slate-200 font-semibold">O(N log₂ N)</span> operations instead of the direct <span className="font-mono text-slate-200 font-semibold">O(N²)</span> summation. In this system, all spectra are computed via NumPy's real FFT core.
+          The <strong>Fast Fourier Transform (FFT)</strong> is an efficient algorithm that computes the same DFT in <span className="font-mono text-slate-200">O(N log₂ N)</span> instead of <span className="font-mono text-slate-200">O(N²)</span>. All spectra here are computed via NumPy's FFT.
         </p>
       </div>
 
-      {/* Top 5 Significant Frequency Peaks Table */}
-      <div className="rounded-xl bg-[#0e1626] border border-slate-800 shadow-xl overflow-hidden">
-        <div className="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+      {/* Top 5 Peaks Table */}
+      <div className="rounded-xl bg-[#111a2e] border border-[#1e3050] shadow-xl overflow-hidden">
+        <div className="p-4 bg-[#0c1220] border-b border-[#1e3050] flex items-center justify-between">
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Significant Spectral Peaks (Top 5 Maxima)
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Top 5 Frequency Peaks
             </h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              The five strongest frequency components extracted using SciPy peak detection.
+            <p className="text-[10px] text-slate-500 mt-0.5">
+              Strongest frequency components detected via peak analysis.
             </p>
           </div>
-          <span className="text-xs font-mono text-slate-500">
+          <span className="text-[10px] font-mono text-slate-500">
             Fs = {timeStats.sampling_rate} Hz
           </span>
         </div>
@@ -130,43 +126,43 @@ const AudioAnalysis = () => {
         {topFivePeaks.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-[#080c14] text-slate-500 border-b border-slate-800/80 uppercase text-[10px] tracking-wider">
+              <thead className="bg-[#0a1018] text-slate-500 border-b border-[#1e3050] uppercase text-[10px] tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-4 w-16">Rank</th>
+                  <th className="py-2.5 px-4 w-14">#</th>
                   <th className="py-2.5 px-4">Frequency</th>
                   <th className="py-2.5 px-4">Magnitude</th>
-                  <th className="py-2.5 px-4 font-sans">Spectral Region</th>
-                  <th className="py-2.5 px-4 font-sans">Filter Target Note</th>
+                  <th className="py-2.5 px-4 font-sans">Region</th>
+                  <th className="py-2.5 px-4 font-sans">Filter Suggestion</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-[#1e3050]">
                 {topFivePeaks.map((peak, index) => {
-                  let band = 'Mid-Band (Fundamental / Harmonic)';
-                  let target = 'Passband (Signal Audio)';
+                  let band = 'Mid-Band';
+                  let target = 'Passband';
                   if (peak.frequency < 100) {
-                    band = 'Sub-Bass / Powerline Interf.';
-                    target = peak.frequency >= 48 && peak.frequency <= 62 ? 'Band-Stop (Notch @ 50/60 Hz)' : 'High-Pass (> 100 Hz)';
+                    band = 'Sub-Bass / Powerline';
+                    target = peak.frequency >= 48 && peak.frequency <= 62 ? 'Notch @ 50/60 Hz' : 'High-Pass (> 100 Hz)';
                   } else if (peak.frequency > 4000) {
-                    band = 'High Frequency / Electronic Hiss';
+                    band = 'High Freq / Hiss';
                     target = 'Low-Pass Filter';
                   }
 
                   return (
-                    <tr key={index} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-3 px-4 font-bold text-cyan-400">
-                        #{index + 1}
+                    <tr key={index} className="hover:bg-[#162038]/50 transition-colors">
+                      <td className="py-3 px-4 font-bold text-violet-400">
+                        {index + 1}
                       </td>
-                      <td className="py-3 px-4 font-bold text-slate-100 text-sm">
+                      <td className="py-3 px-4 font-bold text-white text-sm">
                         {peak.frequency} <span className="text-xs text-slate-500 font-normal">Hz</span>
                       </td>
                       <td className="py-3 px-4 text-emerald-400 font-semibold">
-                        {peak.magnitude_db} <span className="text-xs text-slate-500 font-normal">dBFS</span>
+                        {peak.magnitude_db} <span className="text-xs text-slate-500 font-normal">dB</span>
                       </td>
-                      <td className="py-3 px-4 text-slate-300 font-sans text-xs">
+                      <td className="py-3 px-4 text-slate-400 font-sans text-xs">
                         {band}
                       </td>
                       <td className="py-3 px-4 font-sans">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] bg-slate-950 border border-slate-800 text-slate-300 font-medium">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] bg-[#0c1220] border border-[#1e3050] text-slate-300 font-medium">
                           {target}
                         </span>
                       </td>
@@ -178,7 +174,7 @@ const AudioAnalysis = () => {
           </div>
         ) : (
           <div className="p-6 text-center text-xs text-slate-500 font-mono">
-            No dominant spectral peaks detected above threshold.
+            No dominant spectral peaks detected.
           </div>
         )}
       </div>

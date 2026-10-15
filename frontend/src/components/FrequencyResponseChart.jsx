@@ -14,8 +14,8 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#0b1220]/95 backdrop-blur-md border border-slate-700/80 p-2.5 rounded-lg shadow-xl text-xs space-y-1 font-mono">
-        <p className="text-cyan-400 font-semibold">Frequency: {Number(label).toFixed(1)} Hz</p>
+      <div className="bg-[#0c1220]/95 backdrop-blur-md border border-[#1e3050] p-2.5 rounded-lg shadow-xl text-xs space-y-1 font-mono">
+        <p className="text-violet-400 font-semibold">Frequency: {Number(label).toFixed(1)} Hz</p>
         {payload.map((entry, index) => (
           <p key={index} className="flex items-center space-x-2" style={{ color: entry.color }}>
             <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: entry.color }}></span>
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Frequency Response |H(e^jω)|' }) => {
-  const [plotMode, setPlotMode] = useState('magnitude'); // 'magnitude', 'phase', 'both'
+  const [plotMode, setPlotMode] = useState('magnitude');
 
   const chartData = useMemo(() => {
     if (!responseData?.frequency) return [];
@@ -48,7 +48,7 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
   if (!chartData.length) {
     return (
       <div
-        className="rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-center p-6 text-slate-500 text-xs font-mono"
+        className="rounded-xl bg-[#111a2e] border border-[#1e3050] flex items-center justify-center p-6 text-slate-500 text-xs font-mono"
         style={{ height }}
       >
         Configure filter parameters to preview frequency response...
@@ -59,26 +59,26 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
   const cutoffs = responseData?.annotations?.filter((a) => a.type === 'cutoff') || [];
 
   return (
-    <div className="rounded-xl bg-[#0e1626] border border-slate-800 p-4 shadow-lg space-y-2.5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-800/60">
+    <div className="rounded-xl bg-[#111a2e] border border-[#1e3050] p-4 shadow-lg space-y-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#1e3050]">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <span className="w-2 h-2 rounded-full bg-violet-400"></span>
             <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wide">{title}</h3>
           </div>
           {responseData?.filter_specs && (
             <p className="text-[11px] font-mono text-slate-400 mt-0.5">
-              Type: <strong className="text-cyan-400">{responseData.filter_specs.family} {responseData.filter_specs.type}</strong> | Order: <strong className="text-slate-200">{responseData.filter_specs.order ?? responseData.filter_specs.taps}</strong>
+              Type: <strong className="text-violet-400">{responseData.filter_specs.family} {responseData.filter_specs.type}</strong> | Order: <strong className="text-slate-200">{responseData.filter_specs.order ?? responseData.filter_specs.taps}</strong>
             </p>
           )}
         </div>
 
         {/* Magnitude vs Phase Toggle */}
-        <div className="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[11px] font-mono">
+        <div className="inline-flex rounded-lg bg-[#0c1220] p-0.5 border border-[#1e3050] text-[10px] font-mono">
           <button
             onClick={() => setPlotMode('magnitude')}
             className={`px-2.5 py-1 rounded transition-all ${
-              plotMode === 'magnitude' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+              plotMode === 'magnitude' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Magnitude (dB)
@@ -86,7 +86,7 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
           <button
             onClick={() => setPlotMode('phase')}
             className={`px-2.5 py-1 rounded transition-all ${
-              plotMode === 'phase' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+              plotMode === 'phase' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Phase (deg)
@@ -94,7 +94,7 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
           <button
             onClick={() => setPlotMode('both')}
             className={`px-2.5 py-1 rounded transition-all ${
-              plotMode === 'both' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+              plotMode === 'both' ? 'bg-violet-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Both
@@ -105,17 +105,17 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
       <div style={{ width: '100%', height }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 20, left: -15, bottom: 2 }}>
-            <CartesianGrid strokeDasharray="2 2" stroke="#1e293b" />
+            <CartesianGrid strokeDasharray="2 2" stroke="#1a2744" />
             <XAxis
               dataKey="freq"
-              stroke="#64748b"
+              stroke="#475569"
               tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }}
               tickFormatter={(v) => `${Number(v).toFixed(0)} Hz`}
             />
             {plotMode !== 'phase' && (
               <YAxis
                 yAxisId="left"
-                stroke="#64748b"
+                stroke="#475569"
                 domain={[-80, 5]}
                 tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }}
                 tickFormatter={(v) => `${Number(v).toFixed(0)} dB`}
@@ -125,9 +125,9 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                stroke="#c084fc"
+                stroke="#fbbf24"
                 domain={[-180, 180]}
-                tick={{ fontSize: 10, fill: '#c084fc', fontFamily: 'monospace' }}
+                tick={{ fontSize: 10, fill: '#fbbf24', fontFamily: 'monospace' }}
                 tickFormatter={(v) => `${Number(v).toFixed(0)}°`}
               />
             )}
@@ -137,7 +137,6 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
               formatter={(value) => <span className="text-slate-300 font-mono text-[11px]">{value}</span>}
             />
 
-            {/* Cutoff Reference Lines */}
             {cutoffs.map((c, idx) => (
               <ReferenceLine
                 key={idx}
@@ -165,7 +164,7 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
                 type="monotone"
                 dataKey="magnitude"
                 name="|H(f)| Magnitude (dB)"
-                stroke="#06b6d4"
+                stroke="#a78bfa" // violet
                 dot={false}
                 strokeWidth={2}
                 isAnimationActive={false}
@@ -178,7 +177,7 @@ const FrequencyResponseChart = ({ responseData, height = 320, title = 'Filter Fr
                 type="monotone"
                 dataKey="phase"
                 name="∠H(f) Phase (°)"
-                stroke="#c084fc"
+                stroke="#fbbf24" // amber gold
                 dot={false}
                 strokeWidth={1.5}
                 isAnimationActive={false}
