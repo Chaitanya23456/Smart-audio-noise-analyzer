@@ -291,43 +291,126 @@ class DSPAnalyzer:
         return detected_noise
 
     @classmethod
+    def validate_filter_parameters(cls, filter_config, fs):
+        """
+        Validates sampling rate, filter family, type, cutoff frequencies, filter order, and Chebyshev ripple.
+        Raises ValueError with a clear, descriptive message upon validation failure.
+        """
+        if fs is None or fs <= 0:
+            raise ValueError(f"Sampling rate must be positive, got {fs} Hz")
+
+        nyquist = fs / 2.0
+        family = str(filter_config.get("family", "FIR")).upper()
+        if family not in ["FIR", "IIR"]:
+            raise ValueError(f"Invalid filter family '{family}'. Must be 'FIR' or 'IIR'.")
+
+        ftype = str(filter_config.get("filter_type", "lowpass")).lower()
+        if ftype not in ["lowpass", "highpass", "bandpass", "bandstop"]:
+            raise ValueError(f"Invalid filter type '{ftype}'. Must be lowpass, highpass, bandpass, or bandstop.")
+
+        # Validate order
+        try:
+            order = int(filter_config.get("order", 50 if family == "FIR" else 4))
+        except (ValueError, TypeError):
+            raise ValueError("Filter order must be an integer.")
+
+        if order <= 0:
+            raise ValueError("Filter order must be a positive integer greater than 0.")
+
+        if family == "FIR":
+            if order > 500:
+                raise ValueError(f"FIR filter order ({order}) exceeds practical limit of 500.")
+        else:
+            if order > 12:
+                raise ValueError(f"IIR filter order ({order}) exceeds recommended maximum of 12 for audio stability.")
+
+        # Validate cutoffs
+        if ftype in ["lowpass", "highpass"]:
+            try:
+                cutoff = float(filter_config.get("cutoff", 1000.0))
+            except (ValueError, TypeError):
+                raise ValueError("Cutoff frequency must be a valid number.")
+
+            if cutoff <= 0:
+                raise ValueError(f"Cutoff frequency ({cutoff} Hz) must be strictly greater than 0 Hz.")
+            if cutoff >= nyquist:
+                raise ValueError(f"Cutoff frequency ({cutoff} Hz) must be strictly less than Nyquist ({nyquist} Hz).")
+        else:  # bandpass, bandstop
+            try:
+                low_c = float(filter_config.get("low_cutoff", 300.0))
+                high_c = float(filter_config.get("high_cutoff", 3000.0))
+            except (ValueError, TypeError):
+                raise ValueError("Low and high cutoff frequencies must be valid numbers.")
+
+            if low_c <= 0:
+                raise ValueError(f"Low cutoff ({low_c} Hz) must be strictly greater than 0 Hz.")
+            if high_c >= nyquist:
+                raise ValueError(f"High cutoff ({high_c} Hz) must be strictly less than Nyquist ({nyquist} Hz).")
+            if low_c >= high_c:
+                raise ValueError(f"Low cutoff ({low_c} Hz) must be strictly less than high cutoff ({high_c} Hz).")
+
+        # Validate Chebyshev passband ripple
+        method_str = str(filter_config.get("method", filter_config.get("subtype", ""))).lower()
+        if family == "IIR" and any(k in method_str for k in ["cheby", "chebyshev"]):
+            try:
+                ripple = float(filter_config.get("ripple", 1.0))
+            except (ValueError, TypeError):
+                raise ValueError("Chebyshev passband ripple must be a valid number.")
+            if ripple <= 0:
+                raise ValueError(f"Passband ripple ({ripple} dB) must be strictly positive.")
+            if ripple > 20.0:
+                raise ValueError(f"Passband ripple ({ripple} dB) cannot exceed 20 dB.")
+
+    @classmethod
     def design_filter(cls, filter_config, fs):
         """
         Designs either an FIR filter (b, a) or IIR filter (SOS format).
-        Validates cutoff frequencies against Nyquist (fs/2).
+        Validates cutoff frequencies against Nyquist (fs/2) and checks filter order.
         Returns:
           - 'kind': 'fir' or 'iir'
           - 'coefficients': b array or SOS matrix
           - 'details': metadata for logging and display
         """
+        cls.validate_filter_parameters(filter_config, fs)
+
         nyquist = fs / 2.0
-        family = filter_config.get("family", "FIR").upper()  # 'FIR' or 'IIR'
-        ftype = filter_config.get("filter_type", "lowpass").lower()  # lowpass, highpass, bandpass, bandstop
-        order = int(filter_config.get("order", 31))
+        family = filter_config.get("family", "FIR").upper()
+        ftype = filter_config.get("filter_type", "lowpass").lower()
+        order = int(filter_config.get("order", 50 if family == "FIR" else 4))
 
         if family == "FIR":
             # FIR Window-based design using scipy.signal.firwin
-            window = filter_config.get("window", "hamming")
-            
-            # For highpass and bandstop FIR filters, number of taps MUST be odd
-            numtaps = order if (order % 2 != 0) else order + 1
+            # Supported windows: Hamming, Hann (Hanning), Blackman, Rectangular
+            win_raw = str(filter_config.get("window", filter_config.get("method", "hamming"))).lower().strip()
+            win_map = {
+                "hamming": "hamming",
+                "hamming window": "hamming",
+                "hann": "hann",
+                "hanning": "hann",
+                "hann window": "hann",
+                "hanning window": "hann",
+                "hann (hanning) window": "hann",
+                "blackman": "blackman",
+                "blackman window": "blackman",
+                "rectangular": "boxcar",
+                "rectangular window": "boxcar",
+                "boxcar": "boxcar"
+            }
+            window = win_map.get(win_raw, "hamming")
+
+            # In FIR design, numtaps = order + 1
+            # For highpass and bandstop, numtaps MUST be odd (Type I FIR filter)
+            numtaps = order + 1
+            if ftype in ["highpass", "bandstop"] and (numtaps % 2 == 0):
+                numtaps += 1
 
             if ftype in ["lowpass", "highpass"]:
                 cutoff = float(filter_config.get("cutoff", 1000.0))
-                if cutoff <= 0 or cutoff >= nyquist:
-                    raise ValueError(f"Cutoff frequency {cutoff} Hz must be between 0 and Nyquist ({nyquist} Hz)")
-                
                 pass_zero = True if ftype == "lowpass" else False
                 b = signal.firwin(numtaps, cutoff, window=window, pass_zero=pass_zero, fs=fs)
-                
             elif ftype in ["bandpass", "bandstop"]:
                 low_c = float(filter_config.get("low_cutoff", 300.0))
                 high_c = float(filter_config.get("high_cutoff", 3000.0))
-                if low_c >= high_c:
-                    raise ValueError(f"Low cutoff ({low_c} Hz) must be strictly less than high cutoff ({high_c} Hz)")
-                if low_c <= 0 or high_c >= nyquist:
-                    raise ValueError(f"Cutoffs [{low_c}, {high_c}] must be within (0, {nyquist}) Hz")
-
                 pass_zero = False if ftype == "bandpass" else True
                 b = signal.firwin(numtaps, [low_c, high_c], window=window, pass_zero=pass_zero, fs=fs)
             else:
@@ -346,30 +429,23 @@ class DSPAnalyzer:
 
         elif family == "IIR":
             # IIR Filter design using Second-Order Sections (SOS) for numerical stability
-            subtype = filter_config.get("subtype", "butterworth").lower()
-            rp = float(filter_config.get("ripple", 1.0))  # dB ripple for Chebyshev Type I
+            subtype_raw = str(filter_config.get("subtype", filter_config.get("method", "butterworth"))).lower().strip()
+            is_cheby = any(k in subtype_raw for k in ["cheby", "chebyshev"])
+            rp = float(filter_config.get("ripple", 1.0)) if is_cheby else None
 
             if ftype in ["lowpass", "highpass"]:
                 cutoff = float(filter_config.get("cutoff", 1000.0))
-                if cutoff <= 0 or cutoff >= nyquist:
-                    raise ValueError(f"Cutoff {cutoff} Hz must be between 0 and Nyquist ({nyquist} Hz)")
-
-                if subtype == "chebyshev1":
+                if is_cheby:
                     sos = signal.cheby1(order, rp, cutoff, btype=ftype, output='sos', fs=fs)
-                else:  # butterworth
+                else:
                     sos = signal.butter(order, cutoff, btype=ftype, output='sos', fs=fs)
 
             elif ftype in ["bandpass", "bandstop"]:
                 low_c = float(filter_config.get("low_cutoff", 300.0))
                 high_c = float(filter_config.get("high_cutoff", 3000.0))
-                if low_c >= high_c:
-                    raise ValueError(f"Low cutoff ({low_c} Hz) must be strictly less than high cutoff ({high_c} Hz)")
-                if low_c <= 0 or high_c >= nyquist:
-                    raise ValueError(f"Cutoffs [{low_c}, {high_c}] must be within (0, {nyquist}) Hz")
-
-                if subtype == "chebyshev1":
+                if is_cheby:
                     sos = signal.cheby1(order, rp, [low_c, high_c], btype=ftype, output='sos', fs=fs)
-                else:  # butterworth
+                else:
                     sos = signal.butter(order, [low_c, high_c], btype=ftype, output='sos', fs=fs)
             else:
                 raise ValueError(f"Unsupported IIR filter type: {ftype}")
@@ -378,8 +454,8 @@ class DSPAnalyzer:
                 "kind": "iir",
                 "sos": sos,
                 "order": order,
-                "subtype": subtype,
-                "ripple": rp if subtype == "chebyshev1" else None,
+                "subtype": "chebyshev" if is_cheby else "butterworth",
+                "ripple": rp,
                 "family": "IIR",
                 "filter_type": ftype
             }
@@ -533,15 +609,15 @@ class DSPAnalyzer:
             else:
                 noise_reduction_db = 0.0
 
-            # Blind SNR estimation based on spectral crest / in-band vs floor
-            snr_in = 10 * np.log10((orig_power + 1e-12) / (np.var(original_data - filtered_data) + 1e-12))
-            snr_out = snr_in + max(0.0, min(25.0, noise_reduction_db * 0.75))
-            delta_snr = snr_out - snr_in
+            # Reference-Free: True SNR improvement cannot be known mathematically without clean reference
+            snr_in = None
+            snr_out = None
+            delta_snr = None
 
-            metric_type = "Estimated (Reference-Free Spectral Estimation)"
+            metric_type = "Measured Stopband Attenuation (Reference-Free)"
             metric_notes = (
-                "No pristine clean reference signal was uploaded. True SNR improvement cannot be known "
-                "mathematically without ground truth. Metrics represent estimated stopband spectral attenuation."
+                "No clean reference signal is available. True SNR improvement cannot be measured "
+                "mathematically without ground truth. Stopband noise attenuation represents actual measured spectral reduction."
             )
 
         # Peak Signal-to-Noise Ratio (PSNR)
@@ -553,9 +629,9 @@ class DSPAnalyzer:
             "has_ground_truth": has_ground_truth,
             "metric_type": metric_type,
             "metric_notes": metric_notes,
-            "snr_input_db": round(float(snr_in), 2),
-            "snr_output_db": round(float(snr_out), 2),
-            "delta_snr_db": round(float(delta_snr), 2),
+            "snr_input_db": round(float(snr_in), 2) if snr_in is not None else None,
+            "snr_output_db": round(float(snr_out), 2) if snr_out is not None else None,
+            "delta_snr_db": round(float(delta_snr), 2) if delta_snr is not None else None,
             "noise_reduction_db": round(float(noise_reduction_db), 2),
             "psnr_db": round(float(psnr), 2),
             "residual_rms": round(float(np.sqrt(np.mean((original_data - filtered_data)**2))), 4),
@@ -585,6 +661,173 @@ class DSPAnalyzer:
             except Exception as e:
                 results.append({
                     "filter_name": config.get("name", "Filter"),
+                    "error": str(e)
+                })
+
+        return results
+
+    @classmethod
+    def compare_all_six_filters(cls, data, fs, filter_spec=None, clean_reference=None, save_audio_fn=None):
+        """
+        Compares all four FIR window methods and both IIR filter methods
+        using the same input signal and consistent filter specifications.
+
+        FIR Windows:
+          1. Hamming Window ('hamming')
+          2. Hann (Hanning) Window ('hann')
+          3. Blackman Window ('blackman')
+          4. Rectangular Window ('boxcar')
+
+        IIR Methods:
+          5. Butterworth (scipy.signal.butter)
+          6. Chebyshev (scipy.signal.cheby1)
+        """
+        spec = filter_spec or {}
+        ftype = str(spec.get("filter_type", "lowpass")).lower()
+        nyquist = fs / 2.0
+
+        # Safe defaults based on filter type
+        if ftype in ["lowpass", "highpass"]:
+            default_cutoff = min(2000.0, nyquist * 0.5)
+            cutoff = float(spec.get("cutoff", default_cutoff))
+            low_cutoff = float(spec.get("low_cutoff", 300.0))
+            high_cutoff = float(spec.get("high_cutoff", min(3000.0, nyquist * 0.8)))
+        else:
+            cutoff = float(spec.get("cutoff", 2000.0))
+            low_cutoff = float(spec.get("low_cutoff", min(300.0, nyquist * 0.2)))
+            high_cutoff = float(spec.get("high_cutoff", min(3000.0, nyquist * 0.8)))
+
+        fir_order = int(spec.get("fir_order", spec.get("order", 50)))
+        iir_order = int(spec.get("iir_order", 4))
+        ripple = float(spec.get("ripple", 1.0))
+
+        # Ensure FIR order yields odd number of taps for highpass/bandstop (numtaps = order + 1 must be odd)
+        if ftype in ["highpass", "bandstop"] and (fir_order % 2 != 0):
+            fir_order += 1
+
+        six_configs = [
+            {
+                "id": "fir_hamming",
+                "name": "FIR - Hamming Window",
+                "family": "FIR",
+                "method": "Hamming Window",
+                "window": "hamming",
+                "filter_type": ftype,
+                "order": fir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Linear Phase"
+            },
+            {
+                "id": "fir_hanning",
+                "name": "FIR - Hann (Hanning) Window",
+                "family": "FIR",
+                "method": "Hann (Hanning) Window",
+                "window": "hann",
+                "filter_type": ftype,
+                "order": fir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Linear Phase"
+            },
+            {
+                "id": "fir_blackman",
+                "name": "FIR - Blackman Window",
+                "family": "FIR",
+                "method": "Blackman Window",
+                "window": "blackman",
+                "filter_type": ftype,
+                "order": fir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Linear Phase"
+            },
+            {
+                "id": "fir_rectangular",
+                "name": "FIR - Rectangular Window",
+                "family": "FIR",
+                "method": "Rectangular Window",
+                "window": "boxcar",
+                "filter_type": ftype,
+                "order": fir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Linear Phase"
+            },
+            {
+                "id": "iir_butterworth",
+                "name": "IIR - Butterworth",
+                "family": "IIR",
+                "method": "Butterworth",
+                "subtype": "butterworth",
+                "filter_type": ftype,
+                "order": iir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Non-linear (Min. Delay)"
+            },
+            {
+                "id": "iir_chebyshev",
+                "name": "IIR - Chebyshev",
+                "family": "IIR",
+                "method": "Chebyshev",
+                "subtype": "chebyshev1",
+                "ripple": ripple,
+                "filter_type": ftype,
+                "order": iir_order,
+                "cutoff": cutoff,
+                "low_cutoff": low_cutoff,
+                "high_cutoff": high_cutoff,
+                "phase_type": "Non-linear (Steeper Roll-off)"
+            }
+        ]
+
+        results = []
+        for cfg in six_configs:
+            try:
+                filt_data, elapsed_ms = cls.apply_filter(data, fs, cfg, zero_phase=True)
+                metrics = cls.compute_metrics(data, filt_data, fs, clean_reference, cfg)
+                metrics["processing_time_ms"] = elapsed_ms
+                metrics["id"] = cfg["id"]
+                metrics["filter_name"] = cfg["name"]
+                metrics["family"] = cfg["family"]
+                metrics["method"] = cfg["method"]
+                metrics["order"] = cfg["order"]
+                metrics["filter_type"] = cfg["filter_type"]
+                metrics["cutoff"] = cfg["cutoff"]
+                metrics["low_cutoff"] = cfg["low_cutoff"]
+                metrics["high_cutoff"] = cfg["high_cutoff"]
+                metrics["ripple"] = cfg.get("ripple", None)
+                metrics["phase_type"] = cfg["phase_type"]
+
+                # Real waveforms and spectra calculated from actual audio output
+                filt_time_stats = cls.get_time_domain_stats(filt_data, fs)
+                filt_fft_stats = cls.compute_fft(filt_data, fs)
+                freq_resp = cls.compute_frequency_response(cfg, fs, n_points=512)
+
+                audio_id = None
+                if save_audio_fn:
+                    audio_id = save_audio_fn(filt_data, cfg["name"])
+
+                results.append({
+                    **metrics,
+                    "waveform": filt_time_stats["waveform"],
+                    "spectrum": filt_fft_stats["spectrum"],
+                    "frequency_response": freq_resp,
+                    "filtered_audio_id": audio_id
+                })
+            except Exception as e:
+                results.append({
+                    "id": cfg["id"],
+                    "filter_name": cfg["name"],
+                    "family": cfg["family"],
+                    "method": cfg["method"],
+                    "order": cfg["order"],
                     "error": str(e)
                 })
 

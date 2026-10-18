@@ -88,22 +88,22 @@ const AudioAnalysis = () => {
           originalSpectrum={fftStats?.spectrum}
           dominantFrequencies={topFivePeaks}
           educationalDSP={fftStats?.educational_dsp}
-          title="Frequency Spectrum |X(f)| (dB)"
+          title="DFT (computed using FFT)"
           height={280}
         />
       </div>
 
-      {/* DFT vs FFT Explanation */}
+      {/* DFT (computed using FFT) Explanation */}
       <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
         <div className="flex items-center space-x-2 text-violet-400 text-xs font-bold uppercase tracking-wider">
           <Info className="w-4 h-4 shrink-0" />
-          <span>DFT vs FFT</span>
+          <span>DFT (computed using FFT)</span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
           The <strong>Discrete Fourier Transform (DFT)</strong> converts time-domain samples <span className="font-mono text-violet-300">x[n]</span> into frequency components <span className="font-mono text-violet-300">X[k]</span>.
         </p>
         <p className="text-xs text-slate-400 leading-relaxed">
-          The <strong>Fast Fourier Transform (FFT)</strong> is an efficient algorithm that computes the same DFT in <span className="font-mono text-slate-200">O(N log₂ N)</span> instead of <span className="font-mono text-slate-200">O(N²)</span>. All spectra here are computed via NumPy's FFT.
+          The <strong>Fast Fourier Transform (FFT)</strong> is the efficient algorithm used to compute the DFT in <span className="font-mono text-slate-200">O(N log₂ N)</span> time instead of <span className="font-mono text-slate-200">O(N²)</span>.
         </p>
       </div>
 

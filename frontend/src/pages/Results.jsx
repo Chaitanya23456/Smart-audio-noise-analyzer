@@ -8,6 +8,7 @@ import {
   Zap,
   ShieldCheck,
   AlertTriangle,
+  BarChart3,
 } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 import AudioPlayer from '../components/AudioPlayer';
@@ -84,16 +85,26 @@ const Results = () => {
           </p>
         </div>
 
-        {filteredAudioId && (
-          <a
-            href={api.getAudioDownloadUrl(filteredAudioId)}
-            download
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/50 transition-all shrink-0 active:scale-[0.97]"
+        <div className="flex items-center space-x-3">
+          {filteredAudioId && (
+            <a
+              href={api.getAudioDownloadUrl(filteredAudioId)}
+              download
+              className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/50 transition-all shrink-0 active:scale-[0.97]"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export WAV</span>
+            </a>
+          )}
+
+          <button
+            onClick={() => navigate('/comparison')}
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all shrink-0 active:scale-[0.97]"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export WAV</span>
-          </a>
-        )}
+            <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
+            <span>Compare 6 Filters</span>
+          </button>
+        </div>
       </div>
 
       {/* Audio Playback Bar */}
@@ -224,7 +235,7 @@ const Results = () => {
         <FFTChart
           originalSpectrum={fftStats.spectrum}
           filteredSpectrum={filteredFftStats?.spectrum}
-          title="Spectrum: Input |X(f)| vs Filtered |Y(f)|"
+          title="DFT (computed using FFT): Input |X(f)| vs Filtered |Y(f)|"
           height={280}
         />
       </div>

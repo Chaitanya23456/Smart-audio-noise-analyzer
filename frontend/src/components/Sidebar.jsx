@@ -1,13 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, AudioWaveform, Sliders, Award, FileAudio, Info, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, AudioWaveform, Sliders, BarChart3, Award, FileAudio, Info, CheckCircle } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 
 const navItems = [
   { path: '/', label: 'Dashboard', step: '01', icon: LayoutDashboard },
   { path: '/analysis', label: 'Signal Analysis', step: '02', icon: AudioWaveform },
   { path: '/filters', label: 'Digital Filters', step: '03', icon: Sliders },
-  { path: '/results', label: 'Results', step: '04', icon: Award },
+  { path: '/comparison', label: 'Filter Comparison', step: '04', icon: BarChart3 },
+  { path: '/results', label: 'Results', step: '05', icon: Award },
 ];
 
 const Sidebar = () => {

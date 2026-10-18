@@ -1,11 +1,15 @@
 import React from 'react';
-import { CheckCircle2, Clock, Zap, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Clock, ShieldCheck, AlertTriangle } from 'lucide-react';
 
-const ComparisonTable = ({ comparisonData = [], recommendedFilterName = '' }) => {
+const ComparisonTable = ({
+  comparisonData = [],
+  selectedIndex = 0,
+  onSelectIndex = null,
+}) => {
   if (!comparisonData || comparisonData.length === 0) {
     return (
-      <div className="p-8 text-center rounded-xl bg-slate-900 border border-slate-800 text-slate-500 text-xs">
-        No comparison data available yet. Run a filter benchmark to evaluate FIR vs IIR performance.
+      <div className="p-8 text-center rounded-2xl bg-[#111a2e] border border-[#1e3050] text-slate-500 text-xs">
+        No comparison data available yet. Run the 6-filter benchmark to compare FIR vs IIR methods.
       </div>
     );
   }
@@ -13,60 +17,64 @@ const ComparisonTable = ({ comparisonData = [], recommendedFilterName = '' }) =>
   const isGroundTruth = comparisonData[0]?.has_ground_truth;
 
   return (
-    <div className="rounded-xl bg-slate-900 border border-slate-800 shadow-xl overflow-hidden">
-      <div className="p-4 bg-slate-950/60 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <div className="rounded-2xl bg-[#111a2e] border border-[#1e3050] shadow-xl overflow-hidden">
+      <div className="p-4 bg-[#0c1220] border-b border-[#1e3050] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-slate-100 flex items-center space-x-2">
-            <span>FIR & IIR Filter Performance Benchmark</span>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center space-x-2">
+            <span>FIR & IIR 6-Filter Benchmark Summary</span>
             {isGroundTruth ? (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center space-x-1">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1 font-mono">
                 <ShieldCheck className="w-3 h-3" />
-                <span>Exact Ground-Truth Reference</span>
+                <span>Exact Clean Reference</span>
               </span>
             ) : (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-400 border border-amber-800">
-                Estimated Spectral Metrics
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center space-x-1 font-mono">
+                <AlertTriangle className="w-3 h-3" />
+                <span>Reference-Free Mode</span>
               </span>
             )}
           </h3>
           <p className="text-[11px] text-slate-400 mt-0.5">
             {isGroundTruth
               ? 'SNR improvement ΔSNR computed mathematically against the known clean harmonic reference.'
-              : 'Computed using in-band energy vs attenuated stopband spectral power reduction.'}
+              : 'True SNR requires a known clean reference signal. Measured stopband noise attenuation represents actual spectral reduction.'}
           </p>
         </div>
+        <span className="text-[10px] text-violet-400 font-mono">
+          Click any row to inspect waveforms & spectra
+        </span>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+        <table className="w-full text-left text-xs font-mono">
+          <thead className="bg-[#0a1018] text-slate-400 border-b border-[#1e3050] uppercase text-[10px] tracking-wider">
             <tr>
-              <th className="py-3 px-4">Filter Prototype</th>
+              <th className="py-3 px-4 font-sans">Filter Method</th>
               <th className="py-3 px-3">Family</th>
-              <th className="py-3 px-3">Order / Taps</th>
-              <th className="py-3 px-3">Noise Reduction</th>
-              <th className="py-3 px-3">Δ SNR (Improvement)</th>
-              <th className="py-3 px-3">Execution Time</th>
-              <th className="py-3 px-3">Phase Response</th>
-              <th className="py-3 px-3">Status</th>
+              <th className="py-3 px-3">Order</th>
+              <th className="py-3 px-3">Latency</th>
+              <th className="py-3 px-3">Noise Attenuation</th>
+              <th className="py-3 px-3">Δ SNR Gain</th>
+              <th className="py-3 px-3 font-sans">Phase Response</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[#1e3050]">
             {comparisonData.map((item, index) => {
-              const isRec = recommendedFilterName && item.filter_name === recommendedFilterName;
+              const isSelected = selectedIndex === index;
 
               return (
                 <tr
                   key={index}
-                  className={`transition-colors ${
-                    isRec
-                      ? 'bg-cyan-950/20 hover:bg-cyan-950/30 font-medium'
-                      : 'hover:bg-slate-800/40'
+                  onClick={() => onSelectIndex && onSelectIndex(index)}
+                  className={`cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'bg-violet-500/15 border-l-4 border-violet-500 text-white'
+                      : 'hover:bg-[#162038]/60 text-slate-300'
                   }`}
                 >
-                  <td className="py-3 px-4 font-semibold text-slate-200">
+                  <td className="py-3 px-4 font-sans font-semibold">
                     <div className="flex items-center space-x-2">
-                      {isRec && <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />}
+                      <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-violet-400' : 'bg-slate-600'}`} />
                       <span>{item.filter_name}</span>
                     </div>
                   </td>
@@ -74,41 +82,33 @@ const ComparisonTable = ({ comparisonData = [], recommendedFilterName = '' }) =>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                         item.family === 'FIR'
-                          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                          : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30'
+                          ? 'bg-violet-500/10 text-violet-300 border border-violet-500/20'
+                          : 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20'
                       }`}
                     >
                       {item.family}
                     </span>
                   </td>
-                  <td className="py-3 px-3 font-mono text-slate-300">
+                  <td className="py-3 px-3 text-slate-200">
                     {item.order ?? '—'}
                   </td>
-                  <td className="py-3 px-3 font-mono font-bold text-emerald-400">
+                  <td className="py-3 px-3 font-bold text-amber-400">
+                    {item.processing_time_ms != null ? `${item.processing_time_ms} ms` : '—'}
+                  </td>
+                  <td className="py-3 px-3 font-bold text-emerald-400">
                     {item.noise_reduction_db != null ? `+${item.noise_reduction_db} dB` : '—'}
                   </td>
-                  <td className="py-3 px-3 font-mono text-cyan-300">
-                    {item.delta_snr_db != null ? `+${item.delta_snr_db} dB` : '—'}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-amber-300 flex items-center space-x-1 pt-4">
-                    <Clock className="w-3 h-3 text-slate-500" />
-                    <span>{item.processing_time_ms} ms</span>
-                  </td>
-                  <td className="py-3 px-3 text-slate-400">
-                    {item.phase_response === 'Linear' ? (
-                      <span className="text-cyan-400">Strictly Linear</span>
-                    ) : (
-                      <span className="text-slate-400">Non-linear (SOS)</span>
-                    )}
-                  </td>
                   <td className="py-3 px-3">
-                    {isRec ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                        Top Choice
-                      </span>
+                    {item.has_ground_truth && item.delta_snr_db != null ? (
+                      <span className="text-violet-400 font-bold">+{item.delta_snr_db} dB</span>
                     ) : (
-                      <span className="text-slate-500 text-[11px]">Evaluated</span>
+                      <span className="text-slate-500 italic text-[11px] font-sans">
+                        N/A (Reference-free)
+                      </span>
                     )}
+                  </td>
+                  <td className="py-3 px-3 font-sans text-slate-400">
+                    {item.phase_type || (item.family === 'FIR' ? 'Linear Phase' : 'Non-linear')}
                   </td>
                 </tr>
               );

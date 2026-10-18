@@ -216,6 +216,8 @@ def get_frequency_response():
     try:
         resp = DSPAnalyzer.compute_frequency_response(filter_config, fs)
         return jsonify({"success": True, "response": resp})
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": f"Filter response error: {str(e)}"}), 400
 
@@ -249,9 +251,10 @@ def apply_digital_filter():
         filtered_wav_path = os.path.join(UPLOAD_DIR, f"{filtered_id}.wav")
         DSPAnalyzer.save_audio(filtered_wav_path, filtered_data, fs)
 
+        method_name = filter_config.get("method", filter_config.get("subtype", filter_config.get("window", "filter")))
         AUDIO_STORE[filtered_id] = {
             "file_path": filtered_wav_path,
-            "filename": f"Filtered_{filter_config.get('family', 'Filter')}.wav",
+            "filename": f"Filtered_{filter_config.get('family', 'Filter')}_{method_name}.wav",
             "fs": fs,
             "channels": 1,
             "clean_ref_id": session.get("clean_ref_id")
@@ -276,6 +279,8 @@ def apply_digital_filter():
             "metrics": metrics,
             "frequency_response": freq_response
         })
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": f"Filter application failed: {str(e)}"}), 500
 
@@ -283,6 +288,7 @@ def apply_digital_filter():
 def compare_filter_options():
     payload = request.get_json() or {}
     audio_id = payload.get("audio_id")
+    filter_spec = payload.get("filter_spec", {})
     custom_filters = payload.get("filters", None)
 
     if not audio_id or audio_id not in AUDIO_STORE:
@@ -297,56 +303,29 @@ def compare_filter_options():
             clean_path = AUDIO_STORE[session["clean_ref_id"]]["file_path"]
             clean_reference, _, _ = DSPAnalyzer.load_audio(clean_path)
 
-        if not custom_filters:
-            # Default battery of comprehensive candidate filters
-            custom_filters = [
-                {
-                    "name": "FIR Hamming Low-Pass (Order 65, fc=3500Hz)",
-                    "family": "FIR",
-                    "subtype": "fir_window",
-                    "window": "hamming",
-                    "filter_type": "lowpass",
-                    "order": 65,
-                    "cutoff": 3500.0
-                },
-                {
-                    "name": "IIR Butterworth Low-Pass (Order 4, fc=3500Hz)",
-                    "family": "IIR",
-                    "subtype": "butterworth",
-                    "filter_type": "lowpass",
-                    "order": 4,
-                    "cutoff": 3500.0
-                },
-                {
-                    "name": "IIR Chebyshev Type I Low-Pass (Order 4, 1dB Ripple, fc=3500Hz)",
-                    "family": "IIR",
-                    "subtype": "chebyshev1",
-                    "ripple": 1.0,
-                    "filter_type": "lowpass",
-                    "order": 4,
-                    "cutoff": 3500.0
-                },
-                {
-                    "name": "IIR Butterworth Notch (Order 2, 48-52Hz)",
-                    "family": "IIR",
-                    "subtype": "butterworth",
-                    "filter_type": "bandstop",
-                    "order": 2,
-                    "low_cutoff": 48.0,
-                    "high_cutoff": 52.0
-                },
-                {
-                    "name": "IIR Butterworth High-Pass (Order 4, fc=100Hz)",
-                    "family": "IIR",
-                    "subtype": "butterworth",
-                    "filter_type": "highpass",
-                    "order": 4,
-                    "cutoff": 100.0
-                }
-            ]
+        def save_filtered_audio(filt_data, filter_name):
+            fid = str(uuid.uuid4())
+            fpath = os.path.join(UPLOAD_DIR, f"{fid}.wav")
+            DSPAnalyzer.save_audio(fpath, filt_data, fs)
+            AUDIO_STORE[fid] = {
+                "file_path": fpath,
+                "filename": f"Filtered_{filter_name.replace(' ', '_')}.wav",
+                "fs": fs,
+                "channels": 1,
+                "clean_ref_id": session.get("clean_ref_id")
+            }
+            return fid
 
-        results = DSPAnalyzer.compare_filters(data, fs, custom_filters, clean_reference)
+        if custom_filters:
+            results = DSPAnalyzer.compare_filters(data, fs, custom_filters, clean_reference)
+        else:
+            results = DSPAnalyzer.compare_all_six_filters(
+                data, fs, filter_spec=filter_spec, clean_reference=clean_reference, save_audio_fn=save_filtered_audio
+            )
+
         return jsonify({"success": True, "comparison": results})
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": f"Filter comparison failed: {str(e)}"}), 500
 

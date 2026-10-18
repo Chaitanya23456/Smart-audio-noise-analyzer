@@ -1,10 +1,12 @@
 import React from 'react';
-import { Sliders, ArrowRight, Download, CheckCircle2 } from 'lucide-react';
+import { Sliders, ArrowRight, Download, CheckCircle2, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAudio } from '../hooks/useAudio';
 import FilterControls from '../components/FilterControls';
 import FrequencyResponseChart from '../components/FrequencyResponseChart';
 import AudioPlayer from '../components/AudioPlayer';
+import WaveformChart from '../components/WaveformChart';
+import FFTChart from '../components/FFTChart';
 import api from '../services/api';
 
 const DigitalFilters = () => {
@@ -12,6 +14,10 @@ const DigitalFilters = () => {
     audioId,
     filteredAudioId,
     filename,
+    timeStats,
+    fftStats,
+    filteredTimeStats,
+    filteredFftStats,
     frequencyResponse,
     filterMetrics,
   } = useAudio();
@@ -50,7 +56,7 @@ const DigitalFilters = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Design FIR windowed filters or IIR Butterworth filters, inspect frequency response, and filter audio in real time.
+            Design FIR windowed filters (Hamming, Hann, Blackman, Rectangular) or IIR filters (Butterworth, Chebyshev), inspect frequency response, and filter audio in real time.
           </p>
         </div>
 
@@ -65,6 +71,14 @@ const DigitalFilters = () => {
               <span>Export WAV</span>
             </a>
           )}
+
+          <button
+            onClick={() => navigate('/comparison')}
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all shrink-0 active:scale-[0.97]"
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
+            <span>Compare 6 Filters</span>
+          </button>
 
           <button
             onClick={() => navigate('/results')}
@@ -98,7 +112,7 @@ const DigitalFilters = () => {
         </div>
       </div>
 
-      {/* Status Notice */}
+      {/* Status Notice after Filter Application */}
       {filteredAudioId && filterMetrics && (
         <div className="p-4 rounded-xl bg-[#111a2e] border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center space-x-2 text-emerald-400">
@@ -110,6 +124,34 @@ const DigitalFilters = () => {
           <div className="flex items-center space-x-4 font-mono text-slate-300">
             <span>Latency: <strong className="text-amber-400">{filterMetrics.processing_time_ms} ms</strong></span>
             <span>Stopband Rejection: <strong className="text-emerald-400">+{filterMetrics.noise_reduction_db} dB</strong></span>
+          </div>
+        </div>
+      )}
+
+      {/* Filtered Waveform & Spectrum (DFT computed using FFT) */}
+      {filteredAudioId && filteredTimeStats && (
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Filtered Audio Analysis
+            </h2>
+            <span className="text-[10px] font-mono text-slate-500">
+              Before vs After Filtering
+            </span>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <WaveformChart
+              originalWaveform={timeStats?.waveform}
+              filteredWaveform={filteredTimeStats?.waveform}
+              title="Time-Domain Waveform: Input x[n] vs Filtered y[n]"
+              height={280}
+            />
+            <FFTChart
+              originalSpectrum={fftStats?.spectrum}
+              filteredSpectrum={filteredFftStats?.spectrum}
+              title="DFT (computed using FFT): Input |X(f)| vs Filtered |Y(f)|"
+              height={280}
+            />
           </div>
         </div>
       )}

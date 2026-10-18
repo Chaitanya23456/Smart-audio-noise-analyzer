@@ -28,7 +28,7 @@ function App() {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/analysis" element={<AudioAnalysis />} />
                   <Route path="/filters" element={<DigitalFilters />} />
-                  <Route path="/comparison" element={<Navigate to="/results" replace />} />
+                  <Route path="/comparison" element={<FilterComparison />} />
                   <Route path="/results" element={<Results />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

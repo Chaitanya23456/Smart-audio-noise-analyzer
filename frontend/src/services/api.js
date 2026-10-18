@@ -58,11 +58,14 @@ export const api = {
     return res.data;
   },
 
-  compareFilters: async (audioId, filters = null) => {
-    const res = await client.post('/filter/compare', {
-      audio_id: audioId,
-      filters,
-    });
+  compareFilters: async (audioId, filterSpec = null) => {
+    const payload = { audio_id: audioId };
+    if (Array.isArray(filterSpec)) {
+      payload.filters = filterSpec;
+    } else if (filterSpec) {
+      payload.filter_spec = filterSpec;
+    }
+    const res = await client.post('/filter/compare', payload);
     return res.data;
   },
 

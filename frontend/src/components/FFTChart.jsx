@@ -34,7 +34,7 @@ const FFTChart = ({
   dominantFrequencies = [],
   educationalDSP,
   height = 280,
-  title = 'Spectrum Analyzer: Magnitude |X(f)|',
+  title = 'DFT (computed using FFT)',
 }) => {
   const [zoomRange, setZoomRange] = useState('full');
   const [showTheory, setShowTheory] = useState(false);
@@ -162,7 +162,7 @@ const FFTChart = ({
             <Line
               type="monotone"
               dataKey="original"
-              name="Input Spectrum |X(f)|"
+              name="Input Spectrum (DFT via FFT)"
               stroke="#a78bfa" // violet
               dot={false}
               strokeWidth={1.5}
@@ -172,7 +172,7 @@ const FFTChart = ({
               <Line
                 type="monotone"
                 dataKey="filtered"
-                name="Filtered Spectrum |Y(f)|"
+                name="Filtered Spectrum (DFT via FFT)"
                 stroke="#34d399" // emerald
                 dot={false}
                 strokeWidth={1.5}
