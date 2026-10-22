@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   AudioWaveform,
   ArrowRight,
-  Info,
 } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 import WaveformChart from '../components/WaveformChart';
@@ -84,20 +83,6 @@ const AudioAnalysis = () => {
           title="Frequency Spectrum"
           height={280}
         />
-      </div>
-
-      {/* Frequency Spectrum Explanation */}
-      <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
-        <div className="flex items-center space-x-2 text-violet-400 text-xs font-bold uppercase tracking-wider">
-          <Info className="w-4 h-4 shrink-0" />
-          <span>Frequency Spectrum</span>
-        </div>
-        <p className="text-xs text-slate-300 leading-relaxed">
-          The frequency spectrum displays the distribution of signal energy across frequencies, converting time-domain samples <span className="font-mono text-violet-300">x[n]</span> into spectral components <span className="font-mono text-violet-300">X(f)</span>.
-        </p>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          Fast Fourier Transform (FFT) is utilized to compute the spectrum efficiently, enabling identification of noise components and passband characteristics.
-        </p>
       </div>
     </div>
   );
