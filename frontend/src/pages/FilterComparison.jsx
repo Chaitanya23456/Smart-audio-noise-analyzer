@@ -380,7 +380,7 @@ const FilterComparison = () => {
             <FFTChart
               originalSpectrum={fftStats.spectrum}
               filteredSpectrum={selectedFilter.spectrum}
-              title={`DFT (computed using FFT): Input |X(f)| vs ${selectedFilter.filter_name}`}
+              title={`Frequency Spectrum: Input |X(f)| vs ${selectedFilter.filter_name}`}
               height={280}
             />
           </div>

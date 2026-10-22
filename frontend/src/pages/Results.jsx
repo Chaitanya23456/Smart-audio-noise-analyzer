@@ -235,7 +235,7 @@ const Results = () => {
         <FFTChart
           originalSpectrum={fftStats.spectrum}
           filteredSpectrum={filteredFftStats?.spectrum}
-          title="DFT (computed using FFT): Input |X(f)| vs Filtered |Y(f)|"
+          title="Frequency Spectrum: Input |X(f)| vs Filtered |Y(f)|"
           height={280}
         />
       </div>

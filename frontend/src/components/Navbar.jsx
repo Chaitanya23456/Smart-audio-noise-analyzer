@@ -13,14 +13,9 @@ const Navbar = () => {
           <Activity className="w-4 h-4 text-white stroke-[2.5]" />
         </div>
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-sm font-bold tracking-tight text-white">
-              Smart Audio Noise Analyzer
-            </h1>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-300 border border-violet-500/25 font-semibold hidden sm:inline-block">
-              DSP v2.0
-            </span>
-          </div>
+          <h1 className="text-sm font-bold tracking-tight text-white">
+            Smart Audio Noise Analyzer
+          </h1>
           <p className="text-[10px] text-slate-500 hidden sm:block">
             Digital Signal Processing Mini-Project
           </p>

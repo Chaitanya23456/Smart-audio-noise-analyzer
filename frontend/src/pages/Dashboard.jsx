@@ -48,7 +48,7 @@ const Dashboard = () => {
               Smart Audio Noise Analyzer
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Time-domain waveform, DFT/FFT spectrum analysis, and FIR/IIR filter design.
+              Time-domain waveform, frequency spectrum analysis, and FIR/IIR filter design.
             </p>
           </div>
 

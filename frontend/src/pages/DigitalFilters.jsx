@@ -128,7 +128,7 @@ const DigitalFilters = () => {
         </div>
       )}
 
-      {/* Filtered Waveform & Spectrum (DFT computed using FFT) */}
+      {/* Filtered Waveform & Spectrum */}
       {filteredAudioId && filteredTimeStats && (
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
@@ -149,7 +149,7 @@ const DigitalFilters = () => {
             <FFTChart
               originalSpectrum={fftStats?.spectrum}
               filteredSpectrum={filteredFftStats?.spectrum}
-              title="DFT (computed using FFT): Input |X(f)| vs Filtered |Y(f)|"
+              title="Frequency Spectrum: Input |X(f)| vs Filtered |Y(f)|"
               height={280}
             />
           </div>
