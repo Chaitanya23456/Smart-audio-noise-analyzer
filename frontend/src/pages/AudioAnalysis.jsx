@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   AudioWaveform,
   ArrowRight,
+  Info,
 } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 import WaveformChart from '../components/WaveformChart';
@@ -83,6 +84,20 @@ const AudioAnalysis = () => {
           title="Frequency Spectrum"
           height={280}
         />
+      </div>
+
+      {/* Frequency Spectrum Analysis Overview */}
+      <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
+        <div className="flex items-center space-x-2 text-violet-400 text-xs font-bold uppercase tracking-wider">
+          <Info className="w-4 h-4 shrink-0" />
+          <span>Frequency Spectrum Analysis</span>
+        </div>
+        <p className="text-xs text-slate-300 leading-relaxed">
+          The frequency spectrum represents the distribution of signal energy across different audio frequencies, showing how acoustic power is distributed from low bass to high treble.
+        </p>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          This spectral representation reveals unwanted noise artifacts—such as low-frequency powerline hum, mid-range background noise, or high-frequency hiss—providing the foundation for choosing and tuning appropriate digital filters.
+        </p>
       </div>
     </div>
   );
