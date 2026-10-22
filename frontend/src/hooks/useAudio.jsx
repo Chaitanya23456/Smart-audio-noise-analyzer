@@ -23,6 +23,7 @@ export const AudioProvider = ({ children }) => {
 
   // Comparison & Recommendations
   const [comparisonResults, setComparisonResults] = useState([]);
+  const [comparisonList, setComparisonList] = useState([]);
   const [recommendation, setRecommendation] = useState(null);
 
   // UI state
@@ -61,6 +62,7 @@ export const AudioProvider = ({ children }) => {
       setError(null);
       resetFilteredState();
       setComparisonResults([]);
+      setComparisonList([]);
       setRecommendation(null);
 
       const res = await api.uploadAudio(file);
@@ -92,6 +94,7 @@ export const AudioProvider = ({ children }) => {
       setError(null);
       resetFilteredState();
       setComparisonResults([]);
+      setComparisonList([]);
       setRecommendation(null);
 
       const res = await api.recordAudio(blob);
@@ -123,6 +126,7 @@ export const AudioProvider = ({ children }) => {
       setError(null);
       resetFilteredState();
       setComparisonResults([]);
+      setComparisonList([]);
       setRecommendation(null);
 
       const res = await api.generateDemoSignal(noiseTypes);
@@ -240,6 +244,57 @@ export const AudioProvider = ({ children }) => {
     }
   }, [audioId]);
 
+  const addToComparison = useCallback((customItem = null) => {
+    if (customItem) {
+      setComparisonList((prev) => [...prev, customItem]);
+      return customItem;
+    }
+    if (!filterMetrics || !currentFilterConfig) {
+      return null;
+    }
+
+    const cutoffLabel =
+      currentFilterConfig.filter_type === 'bandpass' || currentFilterConfig.filter_type === 'bandstop'
+        ? `${currentFilterConfig.low_cutoff} - ${currentFilterConfig.high_cutoff} Hz`
+        : `${currentFilterConfig.cutoff} Hz`;
+
+    const item = {
+      id: `filter_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      filter_name: `${currentFilterConfig.family} - ${currentFilterConfig.method || currentFilterConfig.window || 'Filter'} (${currentFilterConfig.filter_type})`,
+      family: currentFilterConfig.family,
+      method: currentFilterConfig.method || currentFilterConfig.window,
+      filter_type: currentFilterConfig.filter_type,
+      order: currentFilterConfig.order,
+      cutoff: currentFilterConfig.cutoff,
+      low_cutoff: currentFilterConfig.low_cutoff,
+      high_cutoff: currentFilterConfig.high_cutoff,
+      cutoff_label: cutoffLabel,
+      ripple: currentFilterConfig.ripple,
+      processing_time_ms: filterMetrics.processing_time_ms,
+      noise_reduction_db: filterMetrics.noise_reduction_db,
+      delta_snr_db: filterMetrics.snr_improvement_db,
+      has_ground_truth: filterMetrics.has_ground_truth,
+      phase_type: currentFilterConfig.family === 'FIR' ? 'Linear Phase' : 'Non-linear Phase',
+      is_stable: filterMetrics.is_stable !== false,
+      waveform: filteredTimeStats?.waveform,
+      spectrum: filteredFftStats?.spectrum,
+      frequency_response: frequencyResponse,
+      filtered_audio_id: filteredAudioId,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setComparisonList((prev) => [...prev, item]);
+    return item;
+  }, [filterMetrics, currentFilterConfig, filteredTimeStats, filteredFftStats, frequencyResponse, filteredAudioId]);
+
+  const removeFromComparison = useCallback((id) => {
+    setComparisonList((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const clearComparison = useCallback(() => {
+    setComparisonList([]);
+  }, []);
+
   const value = {
     audioId,
     cleanAudioId,
@@ -256,6 +311,7 @@ export const AudioProvider = ({ children }) => {
     frequencyResponse,
     currentFilterConfig,
     comparisonResults,
+    comparisonList,
     recommendation,
     loading,
     loadingMessage,
@@ -270,6 +326,9 @@ export const AudioProvider = ({ children }) => {
     handleFetchFrequencyResponse,
     handleCompare,
     handleRecommend,
+    addToComparison,
+    removeFromComparison,
+    clearComparison,
     resetFilteredState,
   };
 

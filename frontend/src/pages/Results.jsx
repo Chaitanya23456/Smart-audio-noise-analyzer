@@ -102,7 +102,7 @@ const Results = () => {
             className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all shrink-0 active:scale-[0.97]"
           >
             <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
-            <span>Compare 6 Filters</span>
+            <span>Filter Comparison</span>
           </button>
         </div>
       </div>

@@ -1,15 +1,18 @@
 import React from 'react';
-import { CheckCircle2, Clock, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Clock, ShieldCheck, AlertTriangle, Trash2, Award } from 'lucide-react';
 
 const ComparisonTable = ({
   comparisonData = [],
   selectedIndex = 0,
   onSelectIndex = null,
+  bestIndex = null,
+  onRemove = null,
+  title = 'Filter Samples Comparison Summary',
 }) => {
   if (!comparisonData || comparisonData.length === 0) {
     return (
       <div className="p-8 text-center rounded-2xl bg-[#111a2e] border border-[#1e3050] text-slate-500 text-xs">
-        No comparison data available yet. Run the 6-filter benchmark to compare FIR vs IIR methods.
+        No filters added for comparison yet. Design and apply filters in Digital Filters, then click &ldquo;Add to Comparison&rdquo;.
       </div>
     );
   }
@@ -21,7 +24,7 @@ const ComparisonTable = ({
       <div className="p-4 bg-[#0c1220] border-b border-[#1e3050] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center space-x-2">
-            <span>FIR & IIR 6-Filter Benchmark Summary</span>
+            <span>{title}</span>
             {isGroundTruth ? (
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1 font-mono">
                 <ShieldCheck className="w-3 h-3" />
@@ -51,20 +54,22 @@ const ComparisonTable = ({
             <tr>
               <th className="py-3 px-4 font-sans">Filter Method</th>
               <th className="py-3 px-3">Family</th>
+              <th className="py-3 px-3">Cutoff</th>
               <th className="py-3 px-3">Order</th>
               <th className="py-3 px-3">Latency</th>
               <th className="py-3 px-3">Noise Attenuation</th>
-              <th className="py-3 px-3">Δ SNR Gain</th>
               <th className="py-3 px-3 font-sans">Phase Response</th>
+              {onRemove && <th className="py-3 px-3 text-right">Action</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1e3050]">
             {comparisonData.map((item, index) => {
               const isSelected = selectedIndex === index;
+              const isBest = bestIndex === index;
 
               return (
                 <tr
-                  key={index}
+                  key={item.id || index}
                   onClick={() => onSelectIndex && onSelectIndex(index)}
                   className={`cursor-pointer transition-colors ${
                     isSelected
@@ -76,6 +81,12 @@ const ComparisonTable = ({
                     <div className="flex items-center space-x-2">
                       <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-violet-400' : 'bg-slate-600'}`} />
                       <span>{item.filter_name}</span>
+                      {isBest && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono flex items-center space-x-0.5">
+                          <Award className="w-2.5 h-2.5" />
+                          <span>Best Filter</span>
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-3 px-3">
@@ -89,6 +100,9 @@ const ComparisonTable = ({
                       {item.family}
                     </span>
                   </td>
+                  <td className="py-3 px-3 text-slate-300">
+                    {item.cutoff_label || (item.cutoff ? `${item.cutoff} Hz` : '—')}
+                  </td>
                   <td className="py-3 px-3 text-slate-200">
                     {item.order ?? '—'}
                   </td>
@@ -98,18 +112,23 @@ const ComparisonTable = ({
                   <td className="py-3 px-3 font-bold text-emerald-400">
                     {item.noise_reduction_db != null ? `+${item.noise_reduction_db} dB` : '—'}
                   </td>
-                  <td className="py-3 px-3">
-                    {item.has_ground_truth && item.delta_snr_db != null ? (
-                      <span className="text-violet-400 font-bold">+{item.delta_snr_db} dB</span>
-                    ) : (
-                      <span className="text-slate-500 italic text-[11px] font-sans">
-                        N/A (Reference-free)
-                      </span>
-                    )}
-                  </td>
                   <td className="py-3 px-3 font-sans text-slate-400">
                     {item.phase_type || (item.family === 'FIR' ? 'Linear Phase' : 'Non-linear')}
                   </td>
+                  {onRemove && (
+                    <td className="py-3 px-3 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemove(item.id || index);
+                        }}
+                        className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        title="Remove from comparison"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               );
             })}

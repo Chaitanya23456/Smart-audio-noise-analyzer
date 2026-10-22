@@ -1,5 +1,5 @@
-import React from 'react';
-import { Sliders, ArrowRight, Download, CheckCircle2, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sliders, ArrowRight, Download, CheckCircle2, BarChart3, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAudio } from '../hooks/useAudio';
 import FilterControls from '../components/FilterControls';
@@ -20,9 +20,24 @@ const DigitalFilters = () => {
     filteredFftStats,
     frequencyResponse,
     filterMetrics,
+    comparisonList,
+    addToComparison,
   } = useAudio();
 
   const navigate = useNavigate();
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    setJustAdded(false);
+  }, [filteredAudioId]);
+
+  const handleAddCurrentFilter = () => {
+    if (addToComparison) {
+      addToComparison();
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 3000);
+    }
+  };
 
   if (!audioId) {
     return (
@@ -74,10 +89,16 @@ const DigitalFilters = () => {
 
           <button
             onClick={() => navigate('/comparison')}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all shrink-0 active:scale-[0.97]"
+            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all shrink-0 active:scale-[0.97]"
+            title="View filters added for comparison"
           >
             <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
-            <span>Compare 6 Filters</span>
+            <span>View Comparison</span>
+            {comparisonList && comparisonList.length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-violet-600 text-white font-mono font-bold leading-none">
+                {comparisonList.length}
+              </span>
+            )}
           </button>
 
           <button
@@ -112,18 +133,31 @@ const DigitalFilters = () => {
         </div>
       </div>
 
-      {/* Status Notice after Filter Application */}
+      {/* Status Notice & Add to Comparison Bar */}
       {filteredAudioId && filterMetrics && (
-        <div className="p-4 rounded-xl bg-[#111a2e] border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 rounded-xl bg-[#111a2e] border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-lg">
           <div className="flex items-center space-x-2 text-emerald-400">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span className="font-semibold">
               Filter Applied: {filterMetrics.filter_family} (Order {filterMetrics.filter_order})
             </span>
           </div>
-          <div className="flex items-center space-x-4 font-mono text-slate-300">
+          <div className="flex flex-wrap items-center gap-4 font-mono text-slate-300">
             <span>Latency: <strong className="text-amber-400">{filterMetrics.processing_time_ms} ms</strong></span>
             <span>Stopband Rejection: <strong className="text-emerald-400">+{filterMetrics.noise_reduction_db} dB</strong></span>
+
+            <button
+              onClick={handleAddCurrentFilter}
+              className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans transition-all shadow-md active:scale-95 ${
+                justAdded
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/20'
+              }`}
+              title="Add this applied filter to comparison"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>{justAdded ? '✓ Added to Comparison' : 'Add for Comparison'}</span>
+            </button>
           </div>
         </div>
       )}
