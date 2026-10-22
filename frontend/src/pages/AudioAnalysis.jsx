@@ -26,7 +26,7 @@ const AudioAnalysis = () => {
         <AudioWaveform className="w-12 h-12 text-slate-600 mx-auto" />
         <h3 className="text-lg font-bold text-slate-200">No Audio Signal Loaded</h3>
         <p className="text-xs text-slate-400">
-          Please upload a WAV file, record from your microphone, or load the demo signal from the Dashboard first.
+          Please upload a WAV file or record from your microphone from the Dashboard first.
         </p>
         <button
           onClick={() => navigate('/')}

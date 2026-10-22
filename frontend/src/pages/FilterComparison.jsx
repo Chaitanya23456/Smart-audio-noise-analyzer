@@ -103,7 +103,7 @@ const FilterComparison = () => {
         <BarChart3 className="w-12 h-12 text-slate-600 mx-auto" />
         <h3 className="text-lg font-bold text-slate-200">No Audio Signal Loaded</h3>
         <p className="text-xs text-slate-400">
-          Please upload audio or load the demo signal from the Dashboard before comparing digital filters.
+          Please upload audio or record from your microphone from the Dashboard before comparing digital filters.
         </p>
         <button
           onClick={() => navigate('/')}
@@ -322,15 +322,11 @@ const FilterComparison = () => {
                   </div>
 
                   <div className="p-3 rounded-xl bg-[#0c1220] border border-[#1e3050] space-y-0.5">
-                    <span className="text-[10px] text-slate-500 font-sans">SNR Improvement</span>
+                    <span className="text-[10px] text-slate-500 font-sans">Filter Cutoff</span>
                     <p className="text-base font-bold text-violet-400">
-                      {selectedFilter.has_ground_truth && selectedFilter.delta_snr_db != null
-                        ? `+${selectedFilter.delta_snr_db} dB`
-                        : 'N/A'}
+                      {selectedFilter.cutoff_label || (selectedFilter.cutoff ? `${selectedFilter.cutoff} Hz` : '—')}
                     </p>
-                    <p className="text-[9px] text-slate-600">
-                      {selectedFilter.has_ground_truth ? 'Exact Ground Truth' : 'Requires clean reference'}
-                    </p>
+                    <p className="text-[9px] text-slate-600">Cutoff Frequency</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-[#0c1220] border border-[#1e3050] space-y-0.5">
@@ -357,13 +353,13 @@ const FilterComparison = () => {
               {/* Overlaid Waveforms & Spectra */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <WaveformChart
-                  originalWaveform={timeStats.waveform}
+                  originalWaveform={timeStats?.waveform}
                   filteredWaveform={selectedFilter.waveform}
                   title={`Time-Domain Waveform: Input x[n] vs ${selectedFilter.filter_name}`}
                   height={280}
                 />
                 <FFTChart
-                  originalSpectrum={fftStats.spectrum}
+                  originalSpectrum={fftStats?.spectrum}
                   filteredSpectrum={selectedFilter.spectrum}
                   title={`Frequency Spectrum: Input |X(f)| vs ${selectedFilter.filter_name}`}
                   height={280}
@@ -371,32 +367,6 @@ const FilterComparison = () => {
               </div>
             </div>
           )}
-
-          {/* Trade-offs Guide */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-violet-400">
-                FIR Window Methods Trade-offs
-              </h4>
-              <ul className="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
-                <li><strong className="text-slate-300">Hamming:</strong> -43 dB first sidelobe attenuation; well-rounded balance of mainlobe width and stopband rejection.</li>
-                <li><strong className="text-slate-300">Hann (Hanning):</strong> -31 dB sidelobe peak with faster asymptotic falloff (18 dB/octave); ideal for general audio smoothing.</li>
-                <li><strong className="text-slate-300">Blackman:</strong> -58 dB stopband attenuation; ultra-deep rejection of high-frequency noise with wider transition band.</li>
-                <li><strong className="text-slate-300">Rectangular:</strong> Narrowest transition band (mainlobe width 4π/M) but highest spectral leakage (-13 dB sidelobes).</li>
-              </ul>
-            </div>
-
-            <div className="p-4 rounded-xl bg-[#111a2e] border border-[#1e3050] space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-                IIR Filter Design Trade-offs
-              </h4>
-              <ul className="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
-                <li><strong className="text-slate-300">Butterworth:</strong> Maximally flat passband response with no ripples. Smooth roll-off and monotonic attenuation in both bands.</li>
-                <li><strong className="text-slate-300">Chebyshev Type I:</strong> Steeper transition roll-off than Butterworth for the same order, trading equiripple ripples in the passband.</li>
-                <li><strong className="text-slate-300">Numerical Stability:</strong> All IIR filters designed using Second-Order Sections (SOS) via `scipy.signal` for superior numerical stability.</li>
-              </ul>
-            </div>
-          </div>
         </>
       )}
     </div>

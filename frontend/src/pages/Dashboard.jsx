@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
   Mic,
-  Sparkles,
   ArrowRight,
   FileAudio,
   Activity,
@@ -24,7 +23,6 @@ const Dashboard = () => {
     filename,
     channels,
     timeStats,
-    handleGenerateDemo,
     loading,
     loadingMessage,
     error,
@@ -42,7 +40,7 @@ const Dashboard = () => {
           <div>
             <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-[10px] font-semibold mb-2">
               <Cpu className="w-3 h-3" />
-              <span>DSP MINI-PROJECT</span>
+              <span>DIGITAL SIGNAL PROCESSING</span>
             </div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight">
               Smart Audio Noise Analyzer
@@ -51,16 +49,6 @@ const Dashboard = () => {
               Time-domain waveform, frequency spectrum analysis, and FIR/IIR filter design.
             </p>
           </div>
-
-          {/* Load Demo Signal */}
-          <button
-            onClick={() => handleGenerateDemo(['hum', 'hiss'])}
-            disabled={loading}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/20 transition-all active:scale-[0.97] disabled:opacity-50 shrink-0"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{loading ? 'Loading...' : 'Load Demo Signal'}</span>
-          </button>
         </div>
 
         {/* Loading Banner */}

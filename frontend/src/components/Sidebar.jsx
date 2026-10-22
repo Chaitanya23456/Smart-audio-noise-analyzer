@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, AudioWaveform, Sliders, BarChart3, Award, FileAudio, Info, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, AudioWaveform, Sliders, BarChart3, Award, FileAudio, CheckCircle } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 
 const navItems = [
@@ -88,16 +88,6 @@ const Sidebar = () => {
             <p className="text-[10px] text-slate-600">Load from Dashboard</p>
           </div>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="p-3 border-t border-[#1e3050]/60">
-        <div className="flex items-start space-x-2 text-slate-600 text-[10px] leading-relaxed">
-          <Info className="w-3 h-3 shrink-0 mt-0.5 text-violet-500/60" />
-          <span>
-            NumPy FFT • SciPy FIR/IIR Filtering
-          </span>
-        </div>
       </div>
     </aside>
   );

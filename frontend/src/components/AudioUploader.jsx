@@ -83,10 +83,6 @@ const AudioUploader = ({ onUploadSuccess }) => {
         <p className="text-xs font-bold text-slate-200 tracking-wide">
           Select or drop an audio signal file here
         </p>
-        <p className="text-[11px] text-slate-500 mt-1">
-          Supports uncompressed PCM WAV (recommended for laboratory DSP), MP3, FLAC
-        </p>
-
         <div className="mt-3 flex items-center space-x-2">
           <span className="px-2.5 py-0.5 rounded-md bg-[#111a2e] border border-[#1e3050] text-[10px] font-mono text-slate-400">
             WAV • 16/24-bit

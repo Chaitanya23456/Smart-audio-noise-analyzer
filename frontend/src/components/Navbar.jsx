@@ -1,9 +1,9 @@
 import React from 'react';
-import { Activity, Sparkles, Server } from 'lucide-react';
+import { Activity, Server } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 
 const Navbar = () => {
-  const { serverOnline, handleGenerateDemo, loading } = useAudio();
+  const { serverOnline } = useAudio();
 
   return (
     <header className="h-14 bg-[#0c1220]/98 backdrop-blur-xl border-b border-[#1e3050]/80 px-6 flex items-center justify-between sticky top-0 z-40">
@@ -17,24 +17,13 @@ const Navbar = () => {
             Smart Audio Noise Analyzer
           </h1>
           <p className="text-[10px] text-slate-500 hidden sm:block">
-            Digital Signal Processing Mini-Project
+            Digital Signal Processing
           </p>
         </div>
       </div>
 
       {/* Right Actions */}
       <div className="flex items-center space-x-2.5">
-        {/* Load Demo Signal Button */}
-        <button
-          onClick={() => handleGenerateDemo(['hum', 'hiss'])}
-          disabled={loading}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#111a2e] hover:bg-[#162038] text-slate-200 border border-[#1e3050] hover:border-violet-500/40 transition-all duration-200 disabled:opacity-50"
-          title="Synthesizes a calibrated demo signal for testing"
-        >
-          <Sparkles className="w-3 h-3 text-amber-400" />
-          <span>{loading ? 'Loading...' : 'Demo Signal'}</span>
-        </button>
-
         {/* Backend Status */}
         <div className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-[#111a2e] border border-[#1e3050] text-[11px]">
           <Server className="w-3 h-3 text-slate-500" />

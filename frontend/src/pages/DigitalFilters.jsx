@@ -45,7 +45,7 @@ const DigitalFilters = () => {
         <Sliders className="w-12 h-12 text-slate-600 mx-auto" />
         <h3 className="text-lg font-bold text-slate-200">No Audio Signal Selected</h3>
         <p className="text-xs text-slate-400">
-          Please upload audio or load the demo signal from the Dashboard before applying digital filters.
+          Please upload audio or record from your microphone from the Dashboard before applying digital filters.
         </p>
         <button
           onClick={() => navigate('/')}
