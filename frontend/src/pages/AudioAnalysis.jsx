@@ -93,7 +93,7 @@ const AudioAnalysis = () => {
           <span>Frequency Spectrum Analysis</span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          The frequency spectrum represents the distribution of signal energy across different audio frequencies, showing how acoustic power is distributed from low bass to high treble.
+          The frequency spectrum represents the distribution of signal energy across different audio frequencies, showing how acoustic power is distributed across the entire audio band from low-frequency fundamentals to upper harmonics.
         </p>
         <p className="text-xs text-slate-400 leading-relaxed">
           This spectral representation reveals unwanted noise artifacts—such as low-frequency powerline hum, mid-range background noise, or high-frequency hiss—providing the foundation for choosing and tuning appropriate digital filters.
